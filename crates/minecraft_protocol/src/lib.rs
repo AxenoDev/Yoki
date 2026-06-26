@@ -1,4 +1,3 @@
-mod packet_serializer;
 mod state;
 
 pub use state::Direction;

@@ -1,7 +1,7 @@
-use yoki_binutils::ProtocolError;
-use yoki_binutils::writer::PacketWriter;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
+use yoki_binutils::ProtocolError;
+use yoki_binutils::writer::PacketWriter;
 
 use crate::packet::{OutgoingPacket, RawPacket};
 

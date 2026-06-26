@@ -66,7 +66,7 @@ impl ClientState {
 
     pub fn set_game_profile(&mut self, game_profile: GameProfile) {
         if let Some(ref mut existing_game_profile) = self.game_profile {
-            existing_game_profile.set_name(&game_profile.username());
+            existing_game_profile.set_name(game_profile.username());
         } else {
             self.game_profile = Some(game_profile);
         }
@@ -78,7 +78,7 @@ impl ClientState {
 
     pub fn get_username(&self) -> String {
         self.game_profile()
-            .map_or_else(|| String::new(), |profile| profile.username().to_string())
+            .map_or_else(String::new, |profile| profile.username().to_string())
     }
 
     pub fn get_unique_id(&self) -> Uuid {

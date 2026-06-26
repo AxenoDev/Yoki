@@ -1,5 +1,5 @@
-use yoki_macros::PacketIn;
 use uuid::Uuid;
+use yoki_macros::PacketIn;
 
 #[derive(Debug, Clone, PacketIn)]
 #[packet(id = 0x00)]

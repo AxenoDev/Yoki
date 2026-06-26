@@ -1,5 +1,5 @@
-use yoki_binutils::{ProtocolError, ProtocolWrite, writer::PacketWriter};
 use uuid::Uuid;
+use yoki_binutils::{ProtocolError, ProtocolWrite, writer::PacketWriter};
 
 use crate::packet::{OutgoingPacket, PacketDirection, PacketMeta};
 

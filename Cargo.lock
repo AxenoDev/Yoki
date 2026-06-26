@@ -172,19 +172,19 @@ name = "minecraft_packet"
 version = "0.1.0"
 dependencies = [
  "minecraft_protocol",
- "yoki_binutils",
- "yoki_macros",
  "tokio",
  "uuid",
+ "yoki_binutils",
+ "yoki_macros",
 ]
 
 [[package]]
 name = "minecraft_protocol"
 version = "0.1.0"
 dependencies = [
- "yoki_macros",
  "tokio",
  "uuid",
+ "yoki_macros",
 ]
 
 [[package]]
@@ -246,8 +246,8 @@ dependencies = [
 name = "protocol_version"
 version = "0.1.0"
 dependencies = [
- "yoki_macros",
  "thiserror",
+ "yoki_macros",
 ]
 
 [[package]]
@@ -327,39 +327,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "yoki"
-version = "0.1.0"
-dependencies = [
- "futures",
- "minecraft_packet",
- "minecraft_protocol",
- "protocol_version",
- "yoki_binutils",
- "yoki_macros",
- "thiserror",
- "tokio",
- "uuid",
-]
-
-[[package]]
-name = "yoki_binutils"
-version = "0.1.0"
-dependencies = [
- "minecraft_protocol",
- "uuid",
-]
-
-[[package]]
-name = "yoki_macros"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
- "thiserror",
 ]
 
 [[package]]
@@ -491,4 +458,37 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc"
 dependencies = [
  "windows-link",
+]
+
+[[package]]
+name = "yoki"
+version = "0.1.0"
+dependencies = [
+ "futures",
+ "minecraft_packet",
+ "minecraft_protocol",
+ "protocol_version",
+ "thiserror",
+ "tokio",
+ "uuid",
+ "yoki_binutils",
+ "yoki_macros",
+]
+
+[[package]]
+name = "yoki_binutils"
+version = "0.1.0"
+dependencies = [
+ "minecraft_protocol",
+ "uuid",
+]
+
+[[package]]
+name = "yoki_macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+ "thiserror",
 ]
