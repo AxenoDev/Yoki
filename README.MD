@@ -2,7 +2,7 @@
 
 # Yoki
 
-**A high-performance Minecraft proxy server written in Rust**
+**A high-performance Minecraft server written from scratch in Rust**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-2024%20edition-orange.svg)](https://www.rust-lang.org)
@@ -12,19 +12,7 @@
 
 </div>
 
-Yoki sits between players and your Minecraft backend servers. Clients connect to the proxy, which handles the Minecraft protocol and routes traffic to the appropriate server.
-
-## Features
-
-- Async I/O powered by [Tokio](https://tokio.rs/)
-- Minecraft protocol handling (handshaking, status, login)
-- Modular workspace with reusable crates:
-  - `minecraft_packet` — packet parsing and connection management
-  - `yoki_macros` — procedural macros for packet definitions
-
-## Requirements
-
-- [Rust](https://rustup.rs/) (2024 edition)
+Yoki is a lightweight, blazing-fast Minecraft server implementation built from the ground up in Rust. Designed as a modern, memory-efficient alternative to traditional Java servers like Paper, it handles game logic, worlds, and player connections natively with optimal performance.
 
 ## Getting Started
 
