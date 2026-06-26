@@ -1,0 +1,11 @@
+[package]
+name = "minecraft_packet"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+takumi_macros = { path = "../takumi_macros" }
+takumi_binutils = { path = "../takumi_binutils" }
+minecraft_protocol = { path = "../minecraft_protocol" }
+tokio = { workspace = true }
+uuid = { workspace = true }

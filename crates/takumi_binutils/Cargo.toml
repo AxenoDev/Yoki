@@ -1,0 +1,8 @@
+[package]
+name = "takumi_binutils"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+uuid = { workspace = true }
+minecraft_protocol = { path = "../minecraft_protocol" }

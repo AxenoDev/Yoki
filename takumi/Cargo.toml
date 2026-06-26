@@ -1,0 +1,23 @@
+[package]
+name = "takumi"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "takumi"
+path = "src/lib.rs"
+
+[[bin]]
+name = "takumi"
+path = "src/main.rs"
+
+[dependencies]
+minecraft_packet = { path = "../crates/minecraft_packet" }
+minecraft_protocol = { path = "../crates/minecraft_protocol" }
+takumi_macros = { path = "../crates/takumi_macros" }
+takumi_binutils = { path = "../crates/takumi_binutils" }
+protocol_version = { path = "../crates/protocol_version" }
+tokio = { workspace = true }
+futures = "0.3"
+uuid = { workspace = true }
+thiserror = { workspace = true }
