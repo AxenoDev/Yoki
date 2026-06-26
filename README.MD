@@ -1,18 +1,18 @@
 <div align="center">
 
-# Takumi
+# Yoki
 
 **A high-performance Minecraft proxy server written in Rust**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-2024%20edition-orange.svg)](https://www.rust-lang.org)
-[![GitHub stars](https://img.shields.io/github/stars/AxenoDev/Takumi?style=social)](https://github.com/AxenoDev/Takumi/stargazers)
-[![GitHub issues](https://img.shields.io/github/issues/AxenoDev/Takumi)](https://github.com/AxenoDev/Takumi/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/AxenoDev/Takumi)](https://github.com/AxenoDev/Takumi/pulls)
+[![GitHub stars](https://img.shields.io/github/stars/AxenoDev/Yoki?style=social)](https://github.com/AxenoDev/Yoki/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/AxenoDev/Yoki)](https://github.com/AxenoDev/Yoki/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/AxenoDev/Yoki)](https://github.com/AxenoDev/Yoki/pulls)
 
 </div>
 
-Takumi sits between players and your Minecraft backend servers. Clients connect to the proxy, which handles the Minecraft protocol and routes traffic to the appropriate server.
+Yoki sits between players and your Minecraft backend servers. Clients connect to the proxy, which handles the Minecraft protocol and routes traffic to the appropriate server.
 
 ## Features
 
@@ -20,7 +20,7 @@ Takumi sits between players and your Minecraft backend servers. Clients connect 
 - Minecraft protocol handling (handshaking, status, login)
 - Modular workspace with reusable crates:
   - `minecraft_packet` — packet parsing and connection management
-  - `takumi_macros` — procedural macros for packet definitions
+  - `yoki_macros` — procedural macros for packet definitions
 
 ## Requirements
 
@@ -31,8 +31,8 @@ Takumi sits between players and your Minecraft backend servers. Clients connect 
 Clone the repository and run the proxy:
 
 ```bash
-git clone https://github.com/AxenoDev/Takumi.git
-cd Takumi
+git clone https://github.com/AxenoDev/Yoki.git
+cd Yoki
 cargo run
 ```
 
@@ -48,7 +48,7 @@ cargo build
 cargo build --release
 ```
 
-The release binary is available at `target/release/takumi`.
+The release binary is available at `target/release/yoki`.
 
 ## Contributing
 
@@ -62,7 +62,7 @@ If you discover a security vulnerability, please report it responsibly. See [SEC
 
 ## License
 
-Takumi is licensed under the [GNU General Public License v3.0](LICENSE).
+Yoki is licensed under the [GNU General Public License v3.0](LICENSE).
 
 <p align="center">
   <sub>Some parts of the code are inspired by <a href="https://github.com/Quozul/PicoLimbo">PicoLimbo</a>.</sub>

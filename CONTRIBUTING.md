@@ -1,6 +1,6 @@
-# Contributing to Takumi
+# Contributing to Yoki
 
-Thank you for your interest in contributing to Takumi! This document explains how to get started and what we expect from contributions.
+Thank you for your interest in contributing to Yoki! This document explains how to get started and what we expect from contributions.
 
 ## Code of Conduct
 
@@ -12,8 +12,8 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 2. Clone your fork locally:
 
    ```bash
-   git clone https://github.com/<your-username>/Takumi.git
-   cd Takumi
+   git clone https://github.com/<your-username>/Yoki.git
+   cd Yoki
    ```
 
 3. Create a branch for your changes:
@@ -24,7 +24,7 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 ## Development Setup
 
-Takumi is a Rust workspace. Make sure you have a recent stable Rust toolchain installed via [rustup](https://rustup.rs/).
+Yoki is a Rust workspace. Make sure you have a recent stable Rust toolchain installed via [rustup](https://rustup.rs/).
 
 ```bash
 # Verify the project builds
@@ -75,7 +75,7 @@ Use imperative mood ("add feature" not "added feature") and keep the subject lin
 ## Submitting a Pull Request
 
 1. Push your branch to your fork.
-2. Open a pull request against the `master` branch of [AxenoDev/Takumi](https://github.com/AxenoDev/Takumi).
+2. Open a pull request against the `master` branch of [AxenoDev/Yoki](https://github.com/AxenoDev/Yoki).
 3. Fill in the pull request description:
    - What problem does this solve?
    - How was it tested?
@@ -86,7 +86,7 @@ Maintainers will review your pull request and may request changes. Once approved
 
 ## Reporting Bugs
 
-Open a [GitHub issue](https://github.com/AxenoDev/Takumi/issues/new) and include:
+Open a [GitHub issue](https://github.com/AxenoDev/Yoki/issues/new) and include:
 
 - A clear description of the problem
 - Steps to reproduce
@@ -96,10 +96,10 @@ Open a [GitHub issue](https://github.com/AxenoDev/Takumi/issues/new) and include
 
 ## Suggesting Features
 
-Feature requests are welcome! Open an issue describing the use case and why it would benefit Takumi users. Discussing the idea before implementing helps avoid wasted effort.
+Feature requests are welcome! Open an issue describing the use case and why it would benefit Yoki users. Discussing the idea before implementing helps avoid wasted effort.
 
 ## Questions
 
 If you have questions, open a GitHub issue with the `question` label or reach out through the issue tracker.
 
-Thank you for helping make Takumi better!
+Thank you for helping make Yoki better!

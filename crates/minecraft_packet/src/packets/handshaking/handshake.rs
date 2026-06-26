@@ -1,6 +1,6 @@
 use minecraft_protocol::State;
-use takumi_binutils::{ProtocolError, ProtocolRead, reader::PacketReader};
-use takumi_macros::PacketIn;
+use yoki_binutils::{ProtocolError, ProtocolRead, reader::PacketReader};
+use yoki_macros::PacketIn;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Intent {

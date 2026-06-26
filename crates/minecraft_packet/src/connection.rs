@@ -1,5 +1,5 @@
-use takumi_binutils::ProtocolError;
-use takumi_binutils::writer::PacketWriter;
+use yoki_binutils::ProtocolError;
+use yoki_binutils::writer::PacketWriter;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 

@@ -1,4 +1,4 @@
-use takumi_binutils::{ProtocolError, reader::PacketReader};
+use yoki_binutils::{ProtocolError, reader::PacketReader};
 
 use crate::packet::IncomingPacket;
 

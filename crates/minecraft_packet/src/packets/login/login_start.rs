@@ -1,4 +1,4 @@
-use takumi_macros::PacketIn;
+use yoki_macros::PacketIn;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PacketIn)]

@@ -1,4 +1,4 @@
-use takumi_macros::PacketOut;
+use yoki_macros::PacketOut;
 
 #[derive(Debug, Clone, PacketOut)]
 #[packet(id = 0x03)]

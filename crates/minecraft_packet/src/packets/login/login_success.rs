@@ -1,4 +1,4 @@
-use takumi_binutils::{ProtocolError, ProtocolWrite, writer::PacketWriter};
+use yoki_binutils::{ProtocolError, ProtocolWrite, writer::PacketWriter};
 use uuid::Uuid;
 
 use crate::packet::{OutgoingPacket, PacketDirection, PacketMeta};

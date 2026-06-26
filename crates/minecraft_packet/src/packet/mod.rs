@@ -1,7 +1,7 @@
 mod raw;
 
 pub use raw::RawPacket;
-use takumi_binutils::{ProtocolError, reader::PacketReader, writer::PacketWriter};
+use yoki_binutils::{ProtocolError, reader::PacketReader, writer::PacketWriter};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PacketDirection {

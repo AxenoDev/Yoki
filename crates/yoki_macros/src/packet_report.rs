@@ -83,7 +83,7 @@ fn expand_derive(input: &DeriveInput) -> syn::Result<TokenStream2> {
             let id = v.id;
             quote! {
                 Self::#variant_ident(packet) => {
-                    let mut writer = takumi_binutils::writer::PacketWriter::new();
+                    let mut writer = yoki_binutils::writer::PacketWriter::new();
                     minecraft_packet::OutgoingPacket::encode_payload(&packet, &mut writer)?;
                     return Ok(minecraft_packet::RawPacket {
                         id: #id,
@@ -107,20 +107,20 @@ fn expand_derive(input: &DeriveInput) -> syn::Result<TokenStream2> {
             pub fn decode_serverbound(
                 state: minecraft_protocol::State,
                 raw: &minecraft_packet::RawPacket,
-            ) -> Result<Self, takumi_binutils::ProtocolError> {
+            ) -> Result<Self, yoki_binutils::ProtocolError> {
                 match (state, raw.id) {
                     #(#decode_arms)*
-                    (state, id) => Err(takumi_binutils::ProtocolError::UnknownPacket {
+                    (state, id) => Err(yoki_binutils::ProtocolError::UnknownPacket {
                         id,
                         conn: Some(state),
                     }),
                 }
             }
 
-            pub fn encode_clientbound(self) -> Result<minecraft_packet::RawPacket, takumi_binutils::ProtocolError> {
+            pub fn encode_clientbound(self) -> Result<minecraft_packet::RawPacket, yoki_binutils::ProtocolError> {
                 match self {
                     #(#encode_arms)*
-                    _ => Err(takumi_binutils::ProtocolError::UnknownPacket {
+                    _ => Err(yoki_binutils::ProtocolError::UnknownPacket {
                         id: -1,
                         conn: None,
                     }),

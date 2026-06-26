@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Takumi is under active development. Security fixes are applied to the latest version on the `master` branch.
+Yoki is under active development. Security fixes are applied to the latest version on the `master` branch.
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -11,12 +11,12 @@ Takumi is under active development. Security fixes are applied to the latest ver
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in Takumi, please report it responsibly. **Do not open a public GitHub issue** for security-related problems.
+If you discover a security vulnerability in Yoki, please report it responsibly. **Do not open a public GitHub issue** for security-related problems.
 
 Instead, report the vulnerability through one of the following channels:
 
-- **[GitHub Security Advisories](https://github.com/AxenoDev/Takumi/security/advisories/new)** (preferred)
-- Open a private security report via GitHub's "Report a vulnerability" button on the [Security tab](https://github.com/AxenoDev/Takumi/security)
+- **[GitHub Security Advisories](https://github.com/AxenoDev/Yoki/security/advisories/new)** (preferred)
+- Open a private security report via GitHub's "Report a vulnerability" button on the [Security tab](https://github.com/AxenoDev/Yoki/security)
 
 If neither option is available, you may open a GitHub issue asking for a private contact method without disclosing any vulnerability details.
 
@@ -42,11 +42,11 @@ We aim to acknowledge reports within **48 hours** and provide an initial assessm
 
 ## Security Best Practices for Operators
 
-When running Takumi in production:
+When running Yoki in production:
 
 - Keep the proxy updated to the latest version
 - Do not expose the proxy port to the public internet without additional network-level protections
 - Run the proxy with the minimum required system privileges
 - Monitor logs for unusual connection patterns
 
-Thank you for helping keep Takumi and its users safe.
+Thank you for helping keep Yoki and its users safe.

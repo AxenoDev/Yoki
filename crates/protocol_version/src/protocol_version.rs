@@ -1,4 +1,4 @@
-use takumi_macros::Pvn;
+use yoki_macros::Pvn;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord, Pvn)]
 #[repr(i32)]

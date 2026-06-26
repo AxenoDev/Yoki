@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
 use minecraft_packet::Connection;
-use takumi::server::{
+use yoki::server::{
     PacketHandler, client_state::ClientState, packet_handler::PacketHandlerError,
     packet_registry::PacketRegistry, server_state::ServerState,
 };
-use takumi_binutils::ProtocolError;
+use yoki_binutils::ProtocolError;
 
 #[tokio::main]
 async fn main() {
@@ -16,7 +16,7 @@ async fn main() {
 
     let server_state = Arc::new(ServerState::default());
 
-    println!("Takumi listening on {addr}");
+    println!("Yoki listening on {addr}");
 
     loop {
         let (socket, client_addr) = listener.accept().await.unwrap();

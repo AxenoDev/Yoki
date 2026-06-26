@@ -140,7 +140,7 @@ pub fn generate_field_decode(field: &Field) -> TokenStream2 {
     }
 
     quote::quote! {
-        #name: <#ty as takumi_binutils::ProtocolRead>::read_from(reader)?,
+        #name: <#ty as yoki_binutils::ProtocolRead>::read_from(reader)?,
     }
 }
 
@@ -176,7 +176,7 @@ pub fn generate_field_encode(field: &Field) -> TokenStream2 {
         return quote::quote! { writer.write_byte_array(&self.#name); };
     }
 
-    quote::quote! { takumi_binutils::ProtocolWrite::write_to(&self.#name, writer)?; }
+    quote::quote! { yoki_binutils::ProtocolWrite::write_to(&self.#name, writer)?; }
 }
 
 pub fn parse_protocol_id_attr(attrs: &[syn::Attribute]) -> syn::Result<ProtocolIdAttr> {

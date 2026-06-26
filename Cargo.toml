@@ -1,10 +1,10 @@
 [workspace]
 members = [
-    "takumi",
+    "yoki",
     "crates/minecraft_packet",
-    "crates/takumi_macros",
+    "crates/yoki_macros",
     "crates/minecraft_protocol",
-    "crates/takumi_binutils", "crates/protocol_version",
+    "crates/yoki_binutils", "crates/protocol_version",
 ]
 resolver = "2"
 

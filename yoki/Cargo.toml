@@ -1,21 +1,21 @@
 [package]
-name = "takumi"
+name = "yoki"
 version = "0.1.0"
 edition = "2024"
 
 [lib]
-name = "takumi"
+name = "yoki"
 path = "src/lib.rs"
 
 [[bin]]
-name = "takumi"
+name = "yoki"
 path = "src/main.rs"
 
 [dependencies]
 minecraft_packet = { path = "../crates/minecraft_packet" }
 minecraft_protocol = { path = "../crates/minecraft_protocol" }
-takumi_macros = { path = "../crates/takumi_macros" }
-takumi_binutils = { path = "../crates/takumi_binutils" }
+yoki_macros = { path = "../crates/yoki_macros" }
+yoki_binutils = { path = "../crates/yoki_binutils" }
 protocol_version = { path = "../crates/protocol_version" }
 tokio = { workspace = true }
 futures = "0.3"

@@ -13,7 +13,7 @@ impl PacketHandler for StatusRequestPacket {
         server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
         let mut batch = Batch::new();
-        let mut response = StatusResponsePacket::takumi_default();
+        let mut response = StatusResponsePacket::yoki_default();
         response.json = response
             .json
             .replace(

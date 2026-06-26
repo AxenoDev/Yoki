@@ -1,4 +1,4 @@
-use takumi_macros::PacketOut;
+use yoki_macros::PacketOut;
 
 use super::PingRequestPacket;
 

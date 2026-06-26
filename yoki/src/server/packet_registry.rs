@@ -13,7 +13,7 @@ use minecraft_packet::packets::{
         login_success::LoginSuccessPacket,
     },
 };
-use takumi_macros::PacketReport;
+use yoki_macros::PacketReport;
 
 use crate::{
     batch::Batch,

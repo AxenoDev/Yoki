@@ -6,7 +6,7 @@ use std::task::{Context, Poll};
 use futures::Stream;
 use minecraft_packet::Connection;
 use minecraft_protocol::{Direction, State};
-use takumi_binutils::ProtocolError;
+use yoki_binutils::ProtocolError;
 
 use super::client_state::ClientState;
 use super::packet_registry::PacketRegistry;

@@ -63,7 +63,7 @@ jobs:
           VERSION: ${{ steps.milestone.outputs.version }}
         run: |
           {
-            echo "## Takumi ${VERSION}"
+            echo "## Yoki ${VERSION}"
             echo
 
             MILESTONE_DESCRIPTION="$(gh api "repos/${{ github.repository }}/milestones/${MILESTONE_NUMBER}" --jq '.description // empty')"
@@ -143,9 +143,9 @@ jobs:
           VERSION: ${{ needs.prepare.outputs.version }}
           TARGET: ${{ matrix.target }}
         run: |
-          BINARY="target/${TARGET}/release/takumi"
-          ARCHIVE="takumi-${VERSION}-${TARGET}.tar.gz"
-          tar -czf "${ARCHIVE}" -C "target/${TARGET}/release" takumi
+          BINARY="target/${TARGET}/release/yoki"
+          ARCHIVE="yoki-${VERSION}-${TARGET}.tar.gz"
+          tar -czf "${ARCHIVE}" -C "target/${TARGET}/release" yoki
           echo "ARCHIVE=${ARCHIVE}" >> "$GITHUB_ENV"
 
       - name: Package (Windows)
@@ -155,14 +155,14 @@ jobs:
           VERSION: ${{ needs.prepare.outputs.version }}
           TARGET: ${{ matrix.target }}
         run: |
-          $archive = "takumi-${env:VERSION}-${env:TARGET}.zip"
-          Compress-Archive -Path "target/${env:TARGET}/release/takumi.exe" -DestinationPath $archive
+          $archive = "yoki-${env:VERSION}-${env:TARGET}.zip"
+          Compress-Archive -Path "target/${env:TARGET}/release/yoki.exe" -DestinationPath $archive
           "ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: takumi-${{ matrix.target }}
+          name: yoki-${{ matrix.target }}
           path: ${{ env.ARCHIVE }}
           retention-days: 1
 

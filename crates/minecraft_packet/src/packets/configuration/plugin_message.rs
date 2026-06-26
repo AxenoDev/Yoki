@@ -1,4 +1,4 @@
-use takumi_macros::PacketIn;
+use yoki_macros::PacketIn;
 
 #[derive(Debug, Clone, PacketIn)]
 #[packet(id = 0x02)]

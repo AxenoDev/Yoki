@@ -1,5 +1,5 @@
 [package]
-name = "takumi_binutils"
+name = "yoki_binutils"
 version = "0.1.0"
 edition = "2024"
 

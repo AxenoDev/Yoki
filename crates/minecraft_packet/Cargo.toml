@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-takumi_macros = { path = "../takumi_macros" }
-takumi_binutils = { path = "../takumi_binutils" }
+yoki_macros = { path = "../yoki_macros" }
+yoki_binutils = { path = "../yoki_binutils" }
 minecraft_protocol = { path = "../minecraft_protocol" }
 tokio = { workspace = true }
 uuid = { workspace = true }

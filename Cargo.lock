@@ -172,8 +172,8 @@ name = "minecraft_packet"
 version = "0.1.0"
 dependencies = [
  "minecraft_protocol",
- "takumi_binutils",
- "takumi_macros",
+ "yoki_binutils",
+ "yoki_macros",
  "tokio",
  "uuid",
 ]
@@ -182,7 +182,7 @@ dependencies = [
 name = "minecraft_protocol"
 version = "0.1.0"
 dependencies = [
- "takumi_macros",
+ "yoki_macros",
  "tokio",
  "uuid",
 ]
@@ -246,7 +246,7 @@ dependencies = [
 name = "protocol_version"
 version = "0.1.0"
 dependencies = [
- "takumi_macros",
+ "yoki_macros",
  "thiserror",
 ]
 
@@ -330,22 +330,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "takumi"
+name = "yoki"
 version = "0.1.0"
 dependencies = [
  "futures",
  "minecraft_packet",
  "minecraft_protocol",
  "protocol_version",
- "takumi_binutils",
- "takumi_macros",
+ "yoki_binutils",
+ "yoki_macros",
  "thiserror",
  "tokio",
  "uuid",
 ]
 
 [[package]]
-name = "takumi_binutils"
+name = "yoki_binutils"
 version = "0.1.0"
 dependencies = [
  "minecraft_protocol",
@@ -353,7 +353,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "takumi_macros"
+name = "yoki_macros"
 version = "0.1.0"
 dependencies = [
  "proc-macro2",

@@ -1,4 +1,4 @@
-use takumi_macros::PacketOut;
+use yoki_macros::PacketOut;
 
 #[derive(Debug, Clone, PartialEq, Eq, PacketOut)]
 #[packet(id = 0x00)]
@@ -7,9 +7,9 @@ pub struct StatusResponsePacket {
 }
 
 impl StatusResponsePacket {
-    pub fn takumi_default() -> Self {
+    pub fn yoki_default() -> Self {
         Self {
-            json: r#"{"version":{"name":"26.2","protocol":776},"players":{"max":100,"online":0},"description":{"text":"Takumi Server"}}"#.into(),
+            json: r#"{"version":{"name":"26.2","protocol":776},"players":{"max":100,"online":0},"description":{"text":"Yoki Server"}}"#.into(),
         }
     }
 }
