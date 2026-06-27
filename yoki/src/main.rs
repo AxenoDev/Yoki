@@ -1,8 +1,9 @@
 use std::sync::Arc;
 
+use clap::Parser;
 use minecraft_packet::Connection;
 use yoki::{
-    ServerState,
+    Cli, ServerState,
     server::{
         PacketHandler, client_state::ClientState, packet_handler::PacketHandlerError,
         packet_registry::PacketRegistry,
@@ -12,7 +13,9 @@ use yoki_binutils::ProtocolError;
 
 #[tokio::main]
 async fn main() {
-    let server_state = Arc::new(ServerState::load("server.toml").expect("failed to load config"));
+    let cli = Cli::parse();
+    let server_state =
+        Arc::new(ServerState::load(&cli.config_path).expect("failed to load config"));
     let addr = server_state.bind();
     let listener = tokio::net::TcpListener::bind(addr)
         .await

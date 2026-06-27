@@ -17,9 +17,10 @@ minecraft_protocol = { path = "../crates/minecraft_protocol" }
 yoki_macros = { path = "../crates/yoki_macros" }
 yoki_binutils = { path = "../crates/yoki_binutils" }
 protocol_version = { path = "../crates/protocol_version" }
+futures = { workspace = true }
 tokio = { workspace = true }
-futures = "0.3"
 uuid = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true }
 toml = { workspace = true }
+clap = { workspace = true }
