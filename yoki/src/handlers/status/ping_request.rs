@@ -2,9 +2,10 @@ use minecraft_packet::packets::PingRequestPacket;
 use minecraft_packet::packets::PingResponsePacket;
 
 use crate::{
+    ServerState,
     batch::Batch,
     server::packet_registry::PacketRegistry,
-    server::{ClientState, PacketHandler, ServerState, packet_handler::PacketHandlerError},
+    server::{ClientState, PacketHandler, packet_handler::PacketHandlerError},
 };
 
 impl PacketHandler for PingRequestPacket {

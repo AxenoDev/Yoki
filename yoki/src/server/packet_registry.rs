@@ -16,6 +16,7 @@ use minecraft_packet::packets::{
 use yoki_macros::PacketReport;
 
 use crate::{
+    ServerState,
     batch::Batch,
     server::{PacketHandler, packet_handler::PacketHandlerError},
 };
@@ -72,7 +73,7 @@ impl PacketHandler for PacketRegistry {
     fn handle(
         &self,
         client_state: &mut super::ClientState,
-        server_state: &super::ServerState,
+        server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
         match self {
             Self::Handshake(packet) => packet.handle(client_state, server_state),

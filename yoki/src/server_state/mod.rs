@@ -1,23 +1,39 @@
+use std::path::Path;
 use std::sync::atomic::{AtomicUsize, Ordering};
+
+use crate::configuration::{Config, ConfigError};
 
 #[derive(Debug)]
 pub struct ServerState {
+    config: Config,
     online_players: AtomicUsize,
-    max_players: usize,
     allow_unsupported_versions: bool,
     reply_to_status: bool,
     accept_transfers: bool,
 }
 
 impl ServerState {
-    pub fn new(max_players: usize) -> Self {
+    pub fn load(path: impl AsRef<Path>) -> Result<Self, ConfigError> {
+        let config = Config::load(path)?;
+        Ok(Self::new(config))
+    }
+
+    pub fn new(config: Config) -> Self {
         Self {
             online_players: AtomicUsize::new(0),
-            max_players,
             allow_unsupported_versions: false,
             reply_to_status: true,
             accept_transfers: false,
+            config,
         }
+    }
+
+    pub fn config(&self) -> &Config {
+        &self.config
+    }
+
+    pub fn bind(&self) -> &str {
+        &self.config.bind
     }
 
     pub fn online_players(&self) -> usize {
@@ -25,7 +41,11 @@ impl ServerState {
     }
 
     pub fn max_players(&self) -> usize {
-        self.max_players
+        self.config.max_players
+    }
+
+    pub fn motd(&self) -> &str {
+        &self.config.motd
     }
 
     pub const fn allow_unsupported_versions(&self) -> bool {
@@ -51,6 +71,6 @@ impl ServerState {
 
 impl Default for ServerState {
     fn default() -> Self {
-        Self::new(20)
+        Self::new(Config::default())
     }
 }

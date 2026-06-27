@@ -1,8 +1,9 @@
 use thiserror::Error;
 
+use crate::ServerState;
+
 use super::batch::Batch;
 use super::client_state::ClientState;
-use super::server_state::ServerState;
 
 #[derive(Error, Debug)]
 pub enum PacketHandlerError {

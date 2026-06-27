@@ -8,8 +8,9 @@ use minecraft_packet::packets::login::{
 };
 
 use crate::{
+    ServerState,
     batch::Batch,
-    server::{ClientState, PacketHandler, ServerState, packet_handler::PacketHandlerError},
+    server::{ClientState, PacketHandler, packet_handler::PacketHandlerError},
 };
 
 impl PacketHandler for EncryptionResponsePacket {

@@ -4,8 +4,9 @@ use protocol_version::protocol_version::ProtocolVersion;
 use thiserror::Error;
 
 use crate::{
+    ServerState,
     batch::Batch,
-    server::{ClientState, PacketHandler, ServerState, packet_handler::PacketHandlerError},
+    server::{ClientState, PacketHandler, packet_handler::PacketHandlerError},
 };
 
 impl PacketHandler for HandshakePacket {

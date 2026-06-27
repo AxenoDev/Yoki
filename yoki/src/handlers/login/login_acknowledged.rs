@@ -2,8 +2,9 @@ use minecraft_packet::packets::login::login_acknowledged::LoginAcknowledgedPacke
 use minecraft_protocol::State;
 
 use crate::{
+    ServerState,
     batch::Batch,
-    server::{ClientState, PacketHandler, ServerState, packet_handler::PacketHandlerError},
+    server::{ClientState, PacketHandler, packet_handler::PacketHandlerError},
 };
 
 impl PacketHandler for LoginAcknowledgedPacket {

@@ -7,5 +7,8 @@ edition = "2024"
 yoki_macros = { path = "../yoki_macros" }
 yoki_binutils = { path = "../yoki_binutils" }
 minecraft_protocol = { path = "../minecraft_protocol" }
+protocol_version = { path = "../protocol_version" }
+serde = { workspace = true }
+serde_json = "1"
 tokio = { workspace = true }
 uuid = { workspace = true }

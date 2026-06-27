@@ -1,20 +1,22 @@
 use std::sync::Arc;
 
 use minecraft_packet::Connection;
-use yoki::server::{
-    PacketHandler, client_state::ClientState, packet_handler::PacketHandlerError,
-    packet_registry::PacketRegistry, server_state::ServerState,
+use yoki::{
+    ServerState,
+    server::{
+        PacketHandler, client_state::ClientState, packet_handler::PacketHandlerError,
+        packet_registry::PacketRegistry,
+    },
 };
 use yoki_binutils::ProtocolError;
 
 #[tokio::main]
 async fn main() {
-    let addr = "0.0.0.0:25565";
+    let server_state = Arc::new(ServerState::load("server.toml").expect("failed to load config"));
+    let addr = server_state.bind();
     let listener = tokio::net::TcpListener::bind(addr)
         .await
-        .expect("failed to bind on port 25565");
-
-    let server_state = Arc::new(ServerState::default());
+        .unwrap_or_else(|_| panic!("failed to bind on {addr}"));
 
     println!("Yoki listening on {addr}");
 

@@ -4,8 +4,9 @@ use minecraft_packet::packets::configuration::{
 };
 
 use crate::{
+    ServerState,
     batch::Batch,
-    server::{ClientState, PacketHandler, ServerState, packet_handler::PacketHandlerError},
+    server::{ClientState, PacketHandler, packet_handler::PacketHandlerError},
 };
 
 impl PacketHandler for ClientInformationPacket {
