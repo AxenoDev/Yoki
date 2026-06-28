@@ -8,6 +8,7 @@ pub enum ProtocolError {
     VarIntTooBig,
     InvalidUtf8,
     InvalidUuid,
+    InvalidIdentifier(String),
     InvalidIntent(i32),
     UnknownPacket { id: i32, conn: Option<State> },
     Io(String),
@@ -20,6 +21,9 @@ impl fmt::Display for ProtocolError {
             Self::VarIntTooBig => f.write_str("varint is too big"),
             Self::InvalidUtf8 => f.write_str("invalid UTF-8 string"),
             Self::InvalidUuid => f.write_str("invalid UUID"),
+            Self::InvalidIdentifier(value) => {
+                f.write_str(&format!("invalid identifier: {value}"))
+            }
             Self::InvalidIntent(v) => f.write_str(&format!("unknown handshake intent: {v}")),
             Self::UnknownPacket { id, conn } => f.write_str(&format!(
                 "unknown packet id: 0x{id:02X}, connection state: {conn:?}"

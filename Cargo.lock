@@ -314,6 +314,7 @@ dependencies = [
  "tokio",
  "uuid",
  "yoki_binutils",
+ "yoki_identifier",
  "yoki_macros",
 ]
 
@@ -738,6 +739,14 @@ version = "0.1.0"
 dependencies = [
  "minecraft_protocol",
  "uuid",
+]
+
+[[package]]
+name = "yoki_identifier"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "thiserror",
 ]
 
 [[package]]

@@ -5,6 +5,7 @@ members = [
     "crates/yoki_macros",
     "crates/minecraft_protocol",
     "crates/yoki_binutils", "crates/protocol_version",
+    "crates/yoki_identifier",
 ]
 resolver = "2"
 
