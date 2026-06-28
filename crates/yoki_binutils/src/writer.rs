@@ -24,6 +24,10 @@ impl PacketWriter {
         self.buf.extend_from_slice(value.as_bytes());
     }
 
+    pub fn write_i32(&mut self, value: i32) {
+        self.buf.extend_from_slice(&value.to_be_bytes());
+    }
+
     pub fn write_u16(&mut self, value: u16) {
         self.buf.extend_from_slice(&value.to_be_bytes());
     }
@@ -51,6 +55,20 @@ impl PacketWriter {
     pub fn write_byte_array(&mut self, value: &[u8]) {
         self.write_varint(value.len() as i32);
         self.buf.extend_from_slice(value);
+    }
+
+    pub fn write_prefixed_optional_string(&mut self, value: Option<&str>) {
+        match value {
+            Some(s) => self.write_string(s),
+            None => self.write_varint(0),
+        }
+    }
+
+    pub fn write_prefixed_optional_bytes(&mut self, value: Option<&[u8]>) {
+        match value {
+            Some(bytes) => self.write_byte_array(bytes),
+            None => self.write_varint(0),
+        }
     }
 
     pub fn extend(&mut self, bytes: impl AsRef<[u8]>) {

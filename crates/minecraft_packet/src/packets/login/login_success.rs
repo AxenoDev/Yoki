@@ -14,13 +14,7 @@ impl ProtocolWrite for Property {
     fn write_to(&self, writer: &mut PacketWriter) -> Result<(), ProtocolError> {
         writer.write_string(&self.name);
         writer.write_string(&self.value);
-        match &self.signature {
-            Some(sig) => {
-                writer.write_bool(true);
-                writer.write_string(sig);
-            }
-            None => writer.write_bool(false),
-        }
+        writer.write_prefixed_optional_string(self.signature.as_deref());
         Ok(())
     }
 }
