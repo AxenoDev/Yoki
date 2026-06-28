@@ -14,10 +14,9 @@ use yoki_binutils::ProtocolError;
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
-    let server_state =
-        Arc::new(ServerState::load(&cli.config_path).expect("failed to load config"));
+    let server_state = Arc::new(ServerState::load(&cli.config_dir).expect("failed to load config"));
     let addr = server_state.bind();
-    let listener = tokio::net::TcpListener::bind(addr)
+    let listener = tokio::net::TcpListener::bind(&addr)
         .await
         .unwrap_or_else(|_| panic!("failed to bind on {addr}"));
 

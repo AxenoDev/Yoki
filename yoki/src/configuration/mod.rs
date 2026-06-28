@@ -1,11 +1,15 @@
 use std::{
-    fs::{self, read_to_string},
-    path::Path,
+    fs::{read_to_string, write},
+    path::{Path, PathBuf},
 };
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use toml::from_str;
+
+use crate::configuration::{motd::MotdConfig, server::ServerConfig};
+
+pub mod motd;
+pub mod server;
 
 #[derive(Error, Debug)]
 pub enum ConfigError {
@@ -15,45 +19,42 @@ pub enum ConfigError {
     Parse(#[from] toml::de::Error),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Config {
-    /// Use `0.0.0.0` to bind on all interfaces.
-    pub bind: String,
-
-    /// Maximum number of players allowed on the server.
-    pub max_players: usize,
-
-    /// The message of the day (MOTD) displayed in the server list.
-    pub motd: String,
+#[derive(Debug, Default)]
+pub struct Configuration {
+    pub server: ServerConfig,
+    pub motd: MotdConfig,
 }
 
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            bind: "0.0.0.0:25565".to_string(),
-            max_players: 20,
-            motd: "Welcome to Yoki server!".to_string(),
-        }
+impl Configuration {
+    pub fn load(dir: impl AsRef<Path>) -> Result<Self, ConfigError> {
+        let dir = dir.as_ref();
+        Ok(Self {
+            server: ServerConfig::load_from_dir(dir)?,
+            motd: MotdConfig::load_from_dir(dir)?,
+        })
     }
 }
 
-impl Config {
-    pub fn load(path: impl AsRef<Path>) -> Result<Self, ConfigError> {
-        let path = path.as_ref();
+pub trait Config: Default + Serialize + for<'de> Deserialize<'de> {
+    const FILE_NAME: &'static str;
+
+    fn load_from_dir(dir: impl AsRef<Path>) -> Result<Self, ConfigError> {
+        let path: PathBuf = dir.as_ref().join(Self::FILE_NAME);
+
         if !path.exists() {
+            std::fs::create_dir_all(dir.as_ref())?;
             let config = Self::default();
-            config.save(path)?;
+            config.save(&path)?;
             return Ok(config);
         }
 
-        let raw = read_to_string(path)?;
-        let config: Self = from_str(&raw)?;
-        Ok(config)
+        let raw = read_to_string(&path)?;
+        Ok(toml::from_str(&raw)?)
     }
 
-    pub fn save(&self, path: impl AsRef<Path>) -> Result<(), ConfigError> {
+    fn save(&self, path: impl AsRef<Path>) -> Result<(), ConfigError> {
         let raw = toml::to_string_pretty(self).expect("Config serialization is infallible");
-        fs::write(path, raw)?;
+        write(path.as_ref(), raw)?;
         Ok(())
     }
 }

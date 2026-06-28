@@ -10,10 +10,10 @@ use clap::Parser;
 pub struct Cli {
     #[arg(
         short = 'c',
-        long = "config",
-        value_name = "CONFIG_PATH",
-        default_value = "server.toml",
-        help = "Configuration file path"
+        long = "config-dir",
+        value_name = "CONFIG_DIR",
+        default_value = "config",
+        help = "Directory containing configuration files."
     )]
-    pub config_path: PathBuf,
+    pub config_dir: PathBuf,
 }

@@ -21,7 +21,7 @@ Clone the repository and run the proxy:
 ```bash
 git clone https://github.com/AxenoDev/Yoki.git
 cd Yoki
-cargo run
+cargo run -- -c target/config/
 ```
 
 The proxy listens on **`0.0.0.0:25565`** by default.

@@ -1,11 +1,11 @@
 use std::path::Path;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::configuration::{Config, ConfigError};
+use crate::configuration::{ConfigError, Configuration};
 
 #[derive(Debug)]
 pub struct ServerState {
-    config: Config,
+    pub config: Configuration,
     online_players: AtomicUsize,
     allow_unsupported_versions: bool,
     reply_to_status: bool,
@@ -14,11 +14,11 @@ pub struct ServerState {
 
 impl ServerState {
     pub fn load(path: impl AsRef<Path>) -> Result<Self, ConfigError> {
-        let config = Config::load(path)?;
+        let config = Configuration::load(path)?;
         Ok(Self::new(config))
     }
 
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: Configuration) -> Self {
         Self {
             online_players: AtomicUsize::new(0),
             allow_unsupported_versions: false,
@@ -28,12 +28,12 @@ impl ServerState {
         }
     }
 
-    pub fn config(&self) -> &Config {
+    pub fn config(&self) -> &Configuration {
         &self.config
     }
 
-    pub fn bind(&self) -> &str {
-        &self.config.bind
+    pub fn bind(&self) -> String {
+        format!("{}:{}", self.config.server.addr, self.config.server.port)
     }
 
     pub fn online_players(&self) -> usize {
@@ -41,11 +41,11 @@ impl ServerState {
     }
 
     pub fn max_players(&self) -> usize {
-        self.config.max_players
+        self.config.server.max_players
     }
 
     pub fn motd(&self) -> &str {
-        &self.config.motd
+        &self.config.motd.motd
     }
 
     pub const fn allow_unsupported_versions(&self) -> bool {
@@ -71,6 +71,6 @@ impl ServerState {
 
 impl Default for ServerState {
     fn default() -> Self {
-        Self::new(Config::default())
+        Self::new(Configuration::default())
     }
 }
