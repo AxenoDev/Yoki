@@ -74,7 +74,7 @@ trait GetStateProtocol {
 
 impl GetStateProtocol for HandshakePacket {
     fn get_next_state(&self) -> Result<State, UnknownStateError> {
-        match self.intent.as_varint() {
+        match self.intent.inner() {
             1 => Ok(State::Status),
             2 => Ok(State::Login),
             3 => Ok(State::Transfer),
@@ -83,10 +83,10 @@ impl GetStateProtocol for HandshakePacket {
     }
 
     fn get_protocol(&self, allow_unsupported_versions: bool) -> ProtocolVersion {
-        if self.protocol_version == -1 {
+        if self.protocol_version.inner() == -1 {
             ProtocolVersion::Any
         } else {
-            let pvn = self.protocol_version;
+            let pvn = self.protocol_version.inner();
             if allow_unsupported_versions {
                 ProtocolVersion::from(pvn)
             } else {

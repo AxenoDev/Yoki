@@ -1,5 +1,8 @@
 use uuid::Uuid;
-use yoki_binutils::{ProtocolError, ProtocolWrite, writer::PacketWriter};
+use yoki_binutils::{
+    BinaryError, BinaryWriter, ProtocolError, ProtocolWrite, WriteBytes,
+    data_types::VarInt,
+};
 
 use crate::packet::{OutgoingPacket, PacketDirection, PacketMeta};
 
@@ -10,12 +13,21 @@ pub struct Property {
     pub signature: Option<String>,
 }
 
-impl ProtocolWrite for Property {
-    fn write_to(&self, writer: &mut PacketWriter) -> Result<(), ProtocolError> {
-        writer.write_string(&self.name);
-        writer.write_string(&self.value);
-        writer.write_prefixed_optional_string(self.signature.as_deref());
+impl WriteBytes for Property {
+    fn write(&self, writer: &mut BinaryWriter) -> Result<(), BinaryError> {
+        self.name.write(writer)?;
+        self.value.write(writer)?;
+        match &self.signature {
+            Some(signature) => signature.write(writer)?,
+            None => VarInt::from(0).write(writer)?,
+        }
         Ok(())
+    }
+}
+
+impl ProtocolWrite for Property {
+    fn write_to(&self, writer: &mut BinaryWriter) -> Result<(), ProtocolError> {
+        self.write(writer).map_err(Into::into)
     }
 }
 
@@ -28,7 +40,6 @@ pub struct LoginSuccessPacket {
 }
 
 impl PacketMeta for LoginSuccessPacket {
-    const ID: i32 = 0x02;
     const DIRECTION: PacketDirection = PacketDirection::Out;
 }
 
@@ -44,7 +55,7 @@ impl LoginSuccessPacket {
 }
 
 impl OutgoingPacket for LoginSuccessPacket {
-    fn encode_payload(&self, writer: &mut PacketWriter) -> Result<(), ProtocolError> {
+    fn encode_payload(&self, writer: &mut BinaryWriter) -> Result<(), ProtocolError> {
         self.uuid.write_to(writer)?;
         self.username.write_to(writer)?;
         self.properties.write_to(writer)?;
@@ -52,8 +63,8 @@ impl OutgoingPacket for LoginSuccessPacket {
         if self.protocol_version >= 776 {
             let session_id = uuid::Uuid::new_v4();
             let (most, least) = session_id.as_u64_pair();
-            writer.write_i64(most as i64);
-            writer.write_i64(least as i64);
+            (most as i64).write_to(writer)?;
+            (least as i64).write_to(writer)?;
         }
 
         Ok(())

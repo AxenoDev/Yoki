@@ -3,28 +3,45 @@ use yoki_binutils::{
     ReadBytes, WriteBytes,
 };
 
-use crate::Identifier;
+#[derive(Clone, Debug, Default)]
+pub struct Position {
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+}
 
-impl ReadBytes for Identifier {
+impl Position {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self { x, y, z }
+    }
+}
+
+impl ReadBytes for Position {
     fn read(reader: &mut BinaryReader<'_>) -> Result<Self, BinaryError> {
-        let value = String::read(reader)?;
-        Self::parse(&value).map_err(|err| BinaryError::InvalidIdentifier(err.to_string()))
+        Ok(Self {
+            x: f64::read(reader)?,
+            y: f64::read(reader)?,
+            z: f64::read(reader)?,
+        })
     }
 }
 
-impl WriteBytes for Identifier {
+impl WriteBytes for Position {
     fn write(&self, writer: &mut BinaryWriter) -> Result<(), BinaryError> {
-        self.to_string().write(writer)
+        self.x.write(writer)?;
+        self.y.write(writer)?;
+        self.z.write(writer)?;
+        Ok(())
     }
 }
 
-impl ProtocolWrite for Identifier {
+impl ProtocolWrite for Position {
     fn write_to(&self, writer: &mut BinaryWriter) -> Result<(), ProtocolError> {
         self.write(writer).map_err(Into::into)
     }
 }
 
-impl ProtocolRead for Identifier {
+impl ProtocolRead for Position {
     fn read_from(reader: &mut BinaryReader<'_>) -> Result<Self, ProtocolError> {
         reader.read().map_err(Into::into)
     }

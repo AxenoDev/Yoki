@@ -9,12 +9,12 @@ mod pvn_attribute;
 
 use proc_macro::TokenStream;
 
-#[proc_macro_derive(PacketIn, attributes(packet, protocol, present_if))]
+#[proc_macro_derive(PacketIn, attributes(protocol, present_if))]
 pub fn derive_packet_in(input: TokenStream) -> TokenStream {
     packet_in::expand(input)
 }
 
-#[proc_macro_derive(PacketOut, attributes(packet, protocol, present_if))]
+#[proc_macro_derive(PacketOut, attributes(protocol, present_if))]
 pub fn derive_packet_out(input: TokenStream) -> TokenStream {
     packet_out::expand(input)
 }

@@ -83,7 +83,7 @@ fn expand_derive(input: &DeriveInput) -> syn::Result<TokenStream2> {
             let id = v.id;
             quote! {
                 Self::#variant_ident(packet) => {
-                    let mut writer = yoki_binutils::writer::PacketWriter::new();
+                    let mut writer = yoki_binutils::BinaryWriter::new();
                     minecraft_packet::OutgoingPacket::encode_payload(&packet, &mut writer)?;
                     return Ok(minecraft_packet::RawPacket {
                         id: #id,

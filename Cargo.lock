@@ -738,6 +738,7 @@ name = "yoki_binutils"
 version = "0.1.0"
 dependencies = [
  "minecraft_protocol",
+ "thiserror",
  "uuid",
 ]
 
@@ -747,6 +748,7 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "thiserror",
+ "yoki_binutils",
 ]
 
 [[package]]

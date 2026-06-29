@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 yoki_macros = { path = "../yoki_macros" }
 yoki_binutils = { path = "../yoki_binutils" }
+yoki_identifier = { path = "../yoki_identifier" }
 minecraft_protocol = { path = "../minecraft_protocol" }
 protocol_version = { path = "../protocol_version" }
 serde = { workspace = true }
