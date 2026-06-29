@@ -1,9 +1,9 @@
 use uuid::Uuid;
 
+use crate::ProtocolError;
 use crate::binary_reader::{BinaryReader, ReadBytes};
 use crate::binary_writer::{BinaryWriter, WriteBytes};
 use crate::data_types::VarInt;
-use crate::ProtocolError;
 
 pub trait ProtocolRead: Sized {
     fn read_from(reader: &mut BinaryReader<'_>) -> Result<Self, ProtocolError>;
@@ -31,18 +31,7 @@ macro_rules! impl_protocol_via_bytes {
     };
 }
 
-impl_protocol_via_bytes!(
-    bool,
-    i8,
-    u8,
-    u16,
-    i32,
-    i64,
-    f64,
-    String,
-    Uuid,
-    VarInt,
-);
+impl_protocol_via_bytes!(bool, i8, u8, u16, i32, i64, f64, String, Uuid, VarInt,);
 
 impl<T: ReadBytes> ProtocolRead for Vec<T> {
     fn read_from(reader: &mut BinaryReader<'_>) -> Result<Self, ProtocolError> {

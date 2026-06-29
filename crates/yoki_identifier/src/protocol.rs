@@ -1,6 +1,6 @@
 use yoki_binutils::{
-    BinaryError, BinaryReader, BinaryWriter, ProtocolError, ProtocolRead, ProtocolWrite,
-    ReadBytes, WriteBytes,
+    BinaryError, BinaryReader, BinaryWriter, ProtocolError, ProtocolRead, ProtocolWrite, ReadBytes,
+    WriteBytes,
 };
 
 use crate::Identifier;

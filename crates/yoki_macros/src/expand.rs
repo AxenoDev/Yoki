@@ -2,7 +2,7 @@ use crate::find_min_max_variants::find_min_max_variants;
 use crate::parsed_variant::ParsedVariant;
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, Data, DeriveInput, Error};
+use syn::{Data, DeriveInput, Error, parse_macro_input};
 
 pub fn expand_protocol_version_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

@@ -1,9 +1,7 @@
 mod raw;
 
 pub use raw::RawPacket;
-use yoki_binutils::{
-    BinaryReader, BinaryWriter, ProtocolError, WriteBytes, data_types::VarInt,
-};
+use yoki_binutils::{BinaryReader, BinaryWriter, ProtocolError, WriteBytes, data_types::VarInt};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PacketDirection {

@@ -1,6 +1,6 @@
 use crate::binary_error::BinaryError;
-use crate::binary_reader::{read_be, BinaryReader, ReadBytes};
-use crate::binary_writer::{write_be, BinaryWriter, WriteBytes};
+use crate::binary_reader::{BinaryReader, ReadBytes, read_be};
+use crate::binary_writer::{BinaryWriter, WriteBytes, write_be};
 
 impl ReadBytes for u16 {
     fn read(reader: &mut BinaryReader<'_>) -> Result<Self, BinaryError> {

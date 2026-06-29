@@ -1,7 +1,6 @@
 use uuid::Uuid;
 use yoki_binutils::{
-    BinaryError, BinaryWriter, ProtocolError, ProtocolWrite, WriteBytes,
-    data_types::VarInt,
+    BinaryError, BinaryWriter, ProtocolError, ProtocolWrite, WriteBytes, data_types::VarInt,
 };
 
 use crate::packet::{OutgoingPacket, PacketDirection, PacketMeta};

@@ -32,10 +32,10 @@ pub fn field_has_protocol_flag(field: &Field, flag: &str) -> bool {
 
 pub fn field_present_if(field: &Field) -> Option<Ident> {
     for attr in &field.attrs {
-        if attr.path().is_ident("present_if") {
-            if let Ok(value) = attr.parse_args::<LitStr>() {
-                return Some(Ident::new(&value.value(), value.span()));
-            }
+        if attr.path().is_ident("present_if")
+            && let Ok(value) = attr.parse_args::<LitStr>()
+        {
+            return Some(Ident::new(&value.value(), value.span()));
         }
     }
 

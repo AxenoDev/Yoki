@@ -2,6 +2,7 @@ use minecraft_packet::packets::configuration::{
     acknowledge_finish_configuration::AcknowledgeFinishConfigurationPacket,
     client_information::ClientInformationPacket, plugin_message::PluginMessagePacket,
 };
+use minecraft_protocol::State;
 
 use crate::{
     ServerState,
@@ -37,7 +38,10 @@ impl PacketHandler for AcknowledgeFinishConfigurationPacket {
         _client_state: &mut ClientState,
         _server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
-        let _ = self;
-        Ok(Batch::new())
+        let mut batch = Batch::new();
+
+        batch.queue_both_state_change(State::Play);
+
+        Ok(batch)
     }
 }

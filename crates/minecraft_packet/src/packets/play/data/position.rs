@@ -1,6 +1,6 @@
 use yoki_binutils::{
-    BinaryError, BinaryReader, BinaryWriter, ProtocolError, ProtocolRead, ProtocolWrite,
-    ReadBytes, WriteBytes,
+    BinaryError, BinaryReader, BinaryWriter, ProtocolError, ProtocolRead, ProtocolWrite, ReadBytes,
+    WriteBytes,
 };
 
 #[derive(Clone, Debug, Default)]
@@ -11,6 +11,7 @@ pub struct Position {
 }
 
 impl Position {
+    #[expect(dead_code)]
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
     }

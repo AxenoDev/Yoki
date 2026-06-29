@@ -1,6 +1,6 @@
 use yoki_binutils::{
-    BinaryError, BinaryReader, BinaryWriter, ProtocolError, ProtocolRead, ProtocolWrite,
-    ReadBytes, WriteBytes, data_types::Omitted,
+    BinaryError, BinaryReader, BinaryWriter, ProtocolError, ProtocolRead, ProtocolWrite, ReadBytes,
+    WriteBytes, data_types::Omitted,
 };
 use yoki_identifier::Identifier;
 
