@@ -1,5 +1,7 @@
 mod known_packs;
 mod mandatory;
+mod dimension_type;
+mod block_states;
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs;
@@ -25,6 +27,7 @@ pub struct RegistryStore {
 struct VersionRegistries {
     all_registry_data: Vec<RegistryDataPacket>,
     tags: UpdateTagsPacket,
+    block_state_ids: BlockStateIds,
 }
 
 #[derive(Debug, Deserialize)]
@@ -126,6 +129,12 @@ impl RegistryStore {
 
         data.tags.clone()
     }
+
+    pub fn block_state_id(&self, version: ProtocolVersion, block_name: &str) -> Option<i32> {
+        self.versions
+            .get(&version.data())
+            .and_then(|data| data.block_state_ids.default_state_id(block_name))
+    }
 }
 
 fn load_version(
@@ -204,9 +213,12 @@ fn load_version(
 
     let tags = load_tags(version_dir, &id_lookup, &loaded_registry_ids)?;
 
+    let block_state_ids = BlockStateIds::load(version_dir)?;
+
     Ok(VersionRegistries {
         all_registry_data,
         tags,
+        block_state_ids,
     })
 }
 
@@ -522,6 +534,7 @@ impl From<std::io::Error> for RegistryError {
 
 pub use known_packs::{client_accepted_known_pack, known_packs_for_version};
 pub use mandatory::should_omit_known_pack_entry_data;
+use crate::registry::block_states::BlockStateIds;
 
 #[cfg(test)]
 mod tests {
@@ -564,5 +577,14 @@ mod tests {
             .collect();
         assert!(dialog_tag_names.contains(&"minecraft:pause_screen_additions".to_string()));
         assert!(dialog_tag_names.contains(&"minecraft:quick_actions".to_string()));
+    }
+
+    #[test]
+    fn block_state_id_for_stone_matches_blocks_report() {
+        let store = RegistryStore::load().expect("registry data should load");
+        let stone_id = store
+            .block_state_id(ProtocolVersion::V26_2, "minecraft:stone")
+            .expect("minecraft:stone should have a default state id");
+        assert_eq!(stone_id, 1);
     }
 }

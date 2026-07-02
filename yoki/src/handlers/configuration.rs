@@ -77,12 +77,12 @@ impl PacketHandler for AcknowledgeFinishConfigurationPacket {
     fn handle(
         &self,
         client_state: &mut ClientState,
-        _server_state: &ServerState,
+        server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
         let mut batch = Batch::new();
 
         batch.queue_both_state_change(State::Play);
-        queue_join_play_packets(&mut batch, client_state.protocol_version());
+        queue_join_play_packets(&mut batch, client_state.protocol_version(), server_state);
 
         Ok(batch)
     }

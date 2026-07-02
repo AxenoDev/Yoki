@@ -14,6 +14,7 @@ pub enum NbtTag {
     String(String),
     List(Vec<NbtTag>),
     Compound(BTreeMap<String, NbtTag>),
+    LongArray(Vec<i64>),
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -104,6 +105,12 @@ fn write_tag_payload(
         NbtTag::String(value) => write_nbt_string(writer, value)?,
         NbtTag::List(values) => write_list_payload(writer, values, options)?,
         NbtTag::Compound(entries) => write_compound_payload(writer, entries, options)?,
+        NbtTag::LongArray(values) => {
+            writer.write_all(&(values.len() as i32).to_be_bytes());
+            for value in values {
+                writer.write_all(&value.to_be_bytes());
+            }
+        }
     }
     Ok(())
 }
@@ -169,6 +176,7 @@ fn tag_type(tag: &NbtTag) -> u8 {
         NbtTag::String(_) => 8,
         NbtTag::List(_) => 9,
         NbtTag::Compound(_) => 10,
+        NbtTag::LongArray(_) => 12,
     }
 }
 

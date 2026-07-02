@@ -7,6 +7,7 @@ use minecraft_packet::packets::play::{
     synchronize_player_position::SynchronizePlayerPositionPacket,
 };
 use minecraft_packet::packets::play::level_chunk_with_light::LevelChunkWithLightPacket;
+use protocol_version::protocol_version::ProtocolVersion;
 use crate::{
     ServerState,
     batch::Batch,
@@ -15,10 +16,16 @@ use crate::{
 };
 
 const SPAWN_X: f64 = 0.5;
-const SPAWN_Y: f64 = 100.0;
+const SPAWN_Y: f64 = 65.0;
 const SPAWN_Z: f64 = 0.5;
 
-pub fn queue_join_play_packets(batch: &mut Batch, protocol_version: protocol_version::protocol_version::ProtocolVersion) {
+pub fn queue_join_play_packets(batch: &mut Batch, protocol_version: ProtocolVersion, server_state: &ServerState) {
+
+    let stone_id = server_state
+        .registry_store()
+        .block_state_id(protocol_version, "minecraft:stone")
+        .expect("stone block state id should exist");
+
     batch.queue_packet(PacketRegistry::Login(LoginPacket::for_protocol_version(
         protocol_version,
     )));
@@ -29,7 +36,7 @@ pub fn queue_join_play_packets(batch: &mut Batch, protocol_version: protocol_ver
     batch.queue_packet(PacketRegistry::SetChunkCacheCenter(SetChunkCacheCenterPacket::new(
         0, 0,
     )));
-    batch.queue_packet(PacketRegistry::LevelChunkWithLight(LevelChunkWithLightPacket::empty(0, 0)));
+    batch.queue_packet(PacketRegistry::LevelChunkWithLight(LevelChunkWithLightPacket::flat(0, 0, stone_id)));
     batch.queue_packet(PacketRegistry::GameEvent(GameEventPacket::start_waiting_for_chunks()));
 }
 
