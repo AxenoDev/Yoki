@@ -10,6 +10,7 @@ import { downloadServerJars } from "./fetch/serverJar.ts";
 
 const SUPPORTED_VERSIONS = [
     "26.2",
+    "26.1"
 ];
 
 async function execute(command: string[], cwd: string) {
