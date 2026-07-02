@@ -322,6 +322,7 @@ dependencies = [
 name = "minecraft_protocol"
 version = "0.1.0"
 dependencies = [
+ "strum_macros",
  "tokio",
  "uuid",
  "yoki_macros",
@@ -521,6 +522,18 @@ name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
+
+[[package]]
+name = "strum_macros"
+version = "0.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab85eea0270ee17587ed4156089e10b9e6880ee688791d45a905f5b1ca36f664"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "syn"
@@ -725,11 +738,13 @@ dependencies = [
  "minecraft_protocol",
  "protocol_version",
  "serde",
+ "strum_macros",
  "thiserror",
  "tokio",
  "toml",
  "uuid",
  "yoki_binutils",
+ "yoki_identifier",
  "yoki_macros",
 ]
 
@@ -757,6 +772,8 @@ version = "0.1.0"
 dependencies = [
  "proc-macro2",
  "quote",
+ "serde",
+ "serde_json",
  "syn",
  "thiserror",
 ]
