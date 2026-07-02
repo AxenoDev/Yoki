@@ -1,5 +1,5 @@
 use minecraft_packet::packets::{
-    HandshakePacket, PingRequestPacket, PingResponsePacket, StatusRequestPacket,
+    HandshakePacket, PingRequestPacket, PongResponsePacket, StatusRequestPacket,
     StatusResponsePacket,
     configuration::{
         acknowledge_finish_configuration::AcknowledgeFinishConfigurationPacket,
@@ -37,6 +37,7 @@ pub enum PacketRegistry {
 
     #[protocol_id(state = "status", bound = "clientbound", id = 0x01)]
     PingResponse(PingResponsePacket),
+    PongResponse(PongResponsePacket),
 
     #[protocol_id(state = "login", bound = "serverbound", id = 0x00)]
     LoginStart(LoginStartPacket),
