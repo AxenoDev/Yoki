@@ -2,12 +2,15 @@ use std::fmt;
 
 use minecraft_protocol::State;
 
+use crate::binary_error::BinaryError;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ProtocolError {
     UnexpectedEof,
     VarIntTooBig,
     InvalidUtf8,
     InvalidUuid,
+    InvalidIdentifier(String),
     InvalidIntent(i32),
     UnknownPacket { id: i32, conn: Option<State> },
     Io(String),
@@ -20,6 +23,7 @@ impl fmt::Display for ProtocolError {
             Self::VarIntTooBig => f.write_str("varint is too big"),
             Self::InvalidUtf8 => f.write_str("invalid UTF-8 string"),
             Self::InvalidUuid => f.write_str("invalid UUID"),
+            Self::InvalidIdentifier(value) => f.write_str(&format!("invalid identifier: {value}")),
             Self::InvalidIntent(v) => f.write_str(&format!("unknown handshake intent: {v}")),
             Self::UnknownPacket { id, conn } => f.write_str(&format!(
                 "unknown packet id: 0x{id:02X}, connection state: {conn:?}"
@@ -34,5 +38,18 @@ impl std::error::Error for ProtocolError {}
 impl From<std::io::Error> for ProtocolError {
     fn from(err: std::io::Error) -> Self {
         Self::Io(err.to_string())
+    }
+}
+
+impl From<BinaryError> for ProtocolError {
+    fn from(err: BinaryError) -> Self {
+        match err {
+            BinaryError::UnexpectedEof => Self::UnexpectedEof,
+            BinaryError::VarIntTooBig | BinaryError::VarLongTooBig => Self::VarIntTooBig,
+            BinaryError::InvalidUtf8(_) => Self::InvalidUtf8,
+            BinaryError::InvalidUuid => Self::InvalidUuid,
+            BinaryError::InvalidIdentifier(value) => Self::InvalidIdentifier(value),
+            BinaryError::Io(err) => Self::Io(err.to_string()),
+        }
     }
 }

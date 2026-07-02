@@ -6,6 +6,6 @@ pub mod status;
 
 pub use handshaking::{HandshakePacket, Intent};
 pub use status::{
-    PingRequestPacket, PingResponsePacket, PlayerSample, PlayersInfo, ServerStatus,
+    PingRequestPacket, PongResponsePacket, PlayerSample, PlayersInfo, ServerStatus,
     StatusRequestPacket, StatusResponsePacket, TextComponent, VersionInfo,
 };

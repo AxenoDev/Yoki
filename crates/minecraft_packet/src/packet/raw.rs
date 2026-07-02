@@ -1,4 +1,4 @@
-use yoki_binutils::{ProtocolError, reader::PacketReader};
+use yoki_binutils::{BinaryReader, ProtocolError};
 
 use crate::packet::IncomingPacket;
 
@@ -10,14 +10,7 @@ pub struct RawPacket {
 
 impl RawPacket {
     pub fn decode<P: IncomingPacket>(&self) -> Result<P, ProtocolError> {
-        if self.id != P::ID {
-            return Err(ProtocolError::UnknownPacket {
-                id: self.id,
-                conn: None,
-            });
-        }
-
-        let mut reader = PacketReader::new(&self.payload);
+        let mut reader = BinaryReader::new(&self.payload);
         P::decode_payload(&mut reader)
     }
 }

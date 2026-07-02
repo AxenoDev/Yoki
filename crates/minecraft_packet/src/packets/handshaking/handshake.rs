@@ -1,5 +1,5 @@
 use minecraft_protocol::State;
-use yoki_binutils::{ProtocolError, ProtocolRead, reader::PacketReader};
+use yoki_binutils::{BinaryReader, ProtocolError, ProtocolRead, data_types::VarInt};
 use yoki_macros::PacketIn;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -19,7 +19,7 @@ impl Intent {
         }
     }
 
-    pub const fn as_varint(self) -> i32 {
+    pub const fn as_i32(self) -> i32 {
         match self {
             Self::Status => 1,
             Self::Login => 2,
@@ -29,8 +29,8 @@ impl Intent {
 }
 
 impl ProtocolRead for Intent {
-    fn read_from(reader: &mut PacketReader<'_>) -> Result<Self, ProtocolError> {
-        Self::from_varint(reader.read_varint()?)
+    fn read_from(reader: &mut BinaryReader<'_>) -> Result<Self, ProtocolError> {
+        Self::from_varint(VarInt::read_from(reader)?.inner())
     }
 }
 
@@ -45,12 +45,12 @@ impl From<Intent> for State {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PacketIn)]
-#[packet(id = 0x00)]
 pub struct HandshakePacket {
-    pub protocol_version: i32,
+    pub protocol_version: VarInt,
     pub server_address: String,
     pub server_port: u16,
-    pub intent: Intent,
+    /// 1: Status 2: Login 3: Transfer
+    pub intent: VarInt,
 }
 
 impl HandshakePacket {
@@ -60,10 +60,10 @@ impl HandshakePacket {
         server_port: u16,
     ) -> Self {
         Self {
-            protocol_version,
+            protocol_version: protocol_version.into(),
             server_address: server_address.into(),
             server_port,
-            intent: Intent::Status,
+            intent: Intent::Status.as_i32().into(),
         }
     }
 
@@ -73,10 +73,10 @@ impl HandshakePacket {
         server_port: u16,
     ) -> Self {
         Self {
-            protocol_version,
+            protocol_version: protocol_version.into(),
             server_address: server_address.into(),
             server_port,
-            intent: Intent::Login,
+            intent: Intent::Login.as_i32().into(),
         }
     }
 }
