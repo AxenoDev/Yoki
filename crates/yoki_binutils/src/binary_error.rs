@@ -19,6 +19,8 @@ pub enum BinaryError {
     InvalidUuid,
     #[error("invalid identifier: {0}")]
     InvalidIdentifier(String),
+    #[error("{0}")]
+    Custom(String),
 }
 
 impl BinaryError {

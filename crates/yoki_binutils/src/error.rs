@@ -49,6 +49,7 @@ impl From<BinaryError> for ProtocolError {
             BinaryError::InvalidUtf8(_) => Self::InvalidUtf8,
             BinaryError::InvalidUuid => Self::InvalidUuid,
             BinaryError::InvalidIdentifier(value) => Self::InvalidIdentifier(value),
+            BinaryError::Custom(message) => Self::Io(message),
             BinaryError::Io(err) => Self::Io(err.to_string()),
         }
     }

@@ -1,6 +1,7 @@
 mod cli;
 mod configuration;
 mod handlers;
+pub mod registry;
 pub mod server;
 pub mod server_state;
 

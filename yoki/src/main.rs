@@ -43,11 +43,21 @@ async fn handle_connection(
 
     loop {
         let raw = conn.receive().await?;
-        let packet = PacketRegistry::decode_serverbound(
+        let packet = match PacketRegistry::decode_serverbound(
             client_state.protocol_version(),
             client_state.serverbound_state(),
             &raw,
-        )?;
+        ) {
+            Ok(packet) => packet,
+            Err(ProtocolError::UnknownPacket { id, conn }) => {
+                eprintln!(
+                    "ignoring unknown packet id={id} in state={conn:?} from {}",
+                    client_state.get_username()
+                );
+                continue;
+            }
+            Err(err) => return Err(err),
+        };
 
         let should_disconnect = matches!(packet, PacketRegistry::PingRequest(_));
 

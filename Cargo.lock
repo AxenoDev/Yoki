@@ -738,6 +738,7 @@ dependencies = [
  "minecraft_protocol",
  "protocol_version",
  "serde",
+ "serde_json",
  "strum_macros",
  "thiserror",
  "tokio",
@@ -753,6 +754,7 @@ name = "yoki_binutils"
 version = "0.1.0"
 dependencies = [
  "minecraft_protocol",
+ "serde_json",
  "thiserror",
  "uuid",
 ]
