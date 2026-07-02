@@ -1,9 +1,5 @@
 use protocol_version::protocol_version::ProtocolVersion;
 
-/// Registries that must be synchronized during configuration.
-///
-/// Mirrors PicoLimbo's mandatory `RegistryKeys` set: vanilla clients already
-/// know the rest via the `minecraft:core` known pack.
 pub fn registry_ids_for_version(version: ProtocolVersion) -> &'static [&'static str] {
     match version {
         ProtocolVersion::V26_2 => &[
@@ -61,7 +57,6 @@ pub fn registry_ids_for_version(version: ProtocolVersion) -> &'static [&'static 
     }
 }
 
-/// Registries whose tags must be sent during configuration (since 1.21.6).
 pub const TAGGED_REGISTRY_IDS: &[&str] = &[
     "minecraft:banner_pattern",
     "minecraft:block",

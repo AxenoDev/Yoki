@@ -28,7 +28,6 @@ pub struct LoginPacket {
     death_location: Option<DeathLocation>,
     portal_cooldown: VarInt,
     sea_level: VarInt,
-    /// Present for protocol 26.2+ (`online_mode` field).
     online_mode: Option<bool>,
     enforces_secure_chat: bool,
 }
