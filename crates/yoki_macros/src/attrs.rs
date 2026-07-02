@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream as TokenStream2;
 use syn::spanned::Spanned;
-use syn::{Field, Ident, LitInt, LitStr, Type};
+use syn::{Field, Ident, LitStr, Type};
 
 pub fn field_has_protocol_flag(field: &Field, flag: &str) -> bool {
     field.attrs.iter().any(|attr| {
