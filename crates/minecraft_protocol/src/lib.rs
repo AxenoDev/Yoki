@@ -1,4 +1,4 @@
 mod state;
 
-pub use state::Direction;
+pub use state::DirectionBound;
 pub use state::State;
