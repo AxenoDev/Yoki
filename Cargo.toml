@@ -18,6 +18,8 @@ quote = "1"
 syn = { version = "2", features = ["full"] }
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
 toml = "1"
 clap = { version = "4", features = ["derive"] }
 futures = "0.3"
+strum_macros = { version = "0.28" }
