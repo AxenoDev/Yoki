@@ -2,17 +2,6 @@ use proc_macro2::TokenStream as TokenStream2;
 use syn::spanned::Spanned;
 use syn::{Field, Ident, LitInt, LitStr, Type};
 
-pub fn lit_int_to_i32(value: &LitInt) -> syn::Result<i32> {
-    let s = value.to_string();
-    if let Some(hex) = s.strip_prefix("0x").or_else(|| s.strip_prefix("0X")) {
-        i32::from_str_radix(hex, 16)
-            .map_err(|_| syn::Error::new(value.span(), "invalid hex packet id"))
-    } else {
-        s.parse()
-            .map_err(|_| syn::Error::new(value.span(), "invalid packet id"))
-    }
-}
-
 pub fn field_has_protocol_flag(field: &Field, flag: &str) -> bool {
     field.attrs.iter().any(|attr| {
         if !attr.path().is_ident("protocol") {
@@ -148,7 +137,7 @@ pub fn parse_protocol_id_attr(attrs: &[syn::Attribute]) -> syn::Result<ProtocolI
 
     let mut state = None;
     let mut bound = None;
-    let mut id = None;
+    let mut name = None;
 
     attr.parse_nested_meta(|meta| {
         if meta.path.is_ident("state") {
@@ -156,7 +145,7 @@ pub fn parse_protocol_id_attr(attrs: &[syn::Attribute]) -> syn::Result<ProtocolI
         } else if meta.path.is_ident("bound") {
             bound = Some(meta.value()?.parse::<LitStr>()?);
         } else if meta.path.is_ident("id") {
-            id = Some(lit_int_to_i32(&meta.value()?.parse::<LitInt>()?)?);
+            name = Some(meta.value()?.parse::<LitStr>()?);
         }
         Ok(())
     })?;
@@ -164,14 +153,14 @@ pub fn parse_protocol_id_attr(attrs: &[syn::Attribute]) -> syn::Result<ProtocolI
     Ok(ProtocolIdAttr {
         state: state.ok_or_else(|| syn::Error::new(attr.span(), "missing state in protocol_id"))?,
         bound: bound.ok_or_else(|| syn::Error::new(attr.span(), "missing bound in protocol_id"))?,
-        id: id.ok_or_else(|| syn::Error::new(attr.span(), "missing id in protocol_id"))?,
+        name: name.ok_or_else(|| syn::Error::new(attr.span(), "missing name in protocol_id"))?,
     })
 }
 
 pub struct ProtocolIdAttr {
     pub state: LitStr,
     pub bound: LitStr,
-    pub id: i32,
+    pub name: LitStr,
 }
 
 pub fn state_str_to_ident(state: &str) -> syn::Result<Ident> {

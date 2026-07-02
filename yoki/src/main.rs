@@ -43,7 +43,11 @@ async fn handle_connection(
 
     loop {
         let raw = conn.receive().await?;
-        let packet = PacketRegistry::decode_serverbound(client_state.serverbound_state(), &raw)?;
+        let packet = PacketRegistry::decode_serverbound(
+            client_state.protocol_version(),
+            client_state.serverbound_state(),
+            &raw,
+        )?;
 
         let should_disconnect = matches!(packet, PacketRegistry::PingRequest(_));
 

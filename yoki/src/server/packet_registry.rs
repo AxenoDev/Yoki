@@ -12,6 +12,7 @@ use minecraft_packet::packets::{
         login_plugin_response::LoginPluginResponsePacket, login_start::LoginStartPacket,
         login_success::LoginSuccessPacket,
     },
+    play::login::LoginPacket,
 };
 use yoki_macros::PacketReport;
 
@@ -23,51 +24,53 @@ use crate::{
 
 #[derive(Debug, PacketReport)]
 pub enum PacketRegistry {
-    #[protocol_id(state = "handshake", bound = "serverbound", id = 0x00)]
+    #[protocol_id(state = "handshake", bound = "serverbound", id = "minecraft:intention")]
     Handshake(HandshakePacket),
 
-    #[protocol_id(state = "status", bound = "serverbound", id = 0x00)]
+    #[protocol_id(state = "status", bound = "serverbound", id = "minecraft:status_request")]
     StatusRequest(StatusRequestPacket),
 
-    #[protocol_id(state = "status", bound = "clientbound", id = 0x00)]
+    #[protocol_id(state = "status", bound = "clientbound", id = "minecraft:status_response")]
     StatusResponse(StatusResponsePacket),
 
-    #[protocol_id(state = "status", bound = "serverbound", id = 0x01)]
+    #[protocol_id(state = "status", bound = "serverbound", id = "minecraft:ping_request")]
     PingRequest(PingRequestPacket),
 
-    #[protocol_id(state = "status", bound = "clientbound", id = 0x01)]
-    PingResponse(PingResponsePacket),
+    #[protocol_id(state = "status", bound = "clientbound", id = "minecraft:pong_response")]
     PongResponse(PongResponsePacket),
 
-    #[protocol_id(state = "login", bound = "serverbound", id = 0x00)]
+    #[protocol_id(state = "login", bound = "serverbound", id = "minecraft:hello")]
     LoginStart(LoginStartPacket),
 
-    #[protocol_id(state = "login", bound = "clientbound", id = 0x02)]
+    #[protocol_id(state = "login", bound = "clientbound", id = "minecraft:login_finished")]
     LoginSuccess(LoginSuccessPacket),
 
-    #[protocol_id(state = "login", bound = "serverbound", id = 0x01)]
+    #[protocol_id(state = "login", bound = "serverbound", id = "minecraft:key")]
     EncryptionResponse(EncryptionResponsePacket),
 
-    #[protocol_id(state = "login", bound = "serverbound", id = 0x02)]
+    #[protocol_id(state = "login", bound = "serverbound", id = "minecraft:custom_query_answer")]
     LoginPluginResponse(LoginPluginResponsePacket),
 
-    #[protocol_id(state = "login", bound = "serverbound", id = 0x03)]
+    #[protocol_id(state = "login", bound = "serverbound", id = "minecraft:login_acknowledged")]
     LoginAcknowledged(LoginAcknowledgedPacket),
 
-    #[protocol_id(state = "login", bound = "serverbound", id = 0x04)]
+    #[protocol_id(state = "login", bound = "serverbound", id = "minecraft:cookie_response")]
     CookieResponseLogin(CookieResponseLoginPacket),
 
-    #[protocol_id(state = "configuration", bound = "serverbound", id = 0x00)]
+    #[protocol_id(state = "configuration", bound = "serverbound", id = "minecraft:client_information")]
     ClientInformation(ClientInformationPacket),
 
-    #[protocol_id(state = "configuration", bound = "serverbound", id = 0x02)]
+    #[protocol_id(state = "configuration", bound = "serverbound", id = "minecraft:custom_payload")]
     PluginMessage(PluginMessagePacket),
 
-    #[protocol_id(state = "configuration", bound = "serverbound", id = 0x03)]
+    #[protocol_id(state = "configuration", bound = "serverbound", id = "minecraft:finish_configuration")]
     AcknowledgeFinishConfiguration(AcknowledgeFinishConfigurationPacket),
 
-    #[protocol_id(state = "configuration", bound = "clientbound", id = 0x03)]
+    #[protocol_id(state = "configuration", bound = "clientbound", id = "minecraft:finish_configuration")]
     FinishConfiguration(FinishConfigurationPacket),
+
+    #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:login")]
+    Login(LoginPacket),
 }
 
 impl PacketHandler for PacketRegistry {
