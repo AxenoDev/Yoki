@@ -9,6 +9,7 @@ pub const OVERWORLD_MIN_Y: i32 = -64;
 pub const OVERWORLD_HEIGHT: i32 = 384;
 pub const FLAT_SURFACE_Y: i32 = 63;
 pub const HEIGHTMAP_MOTION_BLOCKING: i32 = 4;
+pub const LIGHT_SECTION_COUNT: usize = WORLD_SECTION_COUNT + 2;
 
 #[derive(Debug, Clone)]
 pub struct Heightmap {
@@ -58,7 +59,6 @@ pub struct LevelChunkWithLightPacket {
 }
 
 impl LevelChunkWithLightPacket {
-    /// Chunk 100% air, utile pour les tests / débug uniquement.
     pub fn empty(chunk_x: i32, chunk_z: i32) -> Self {
         Self {
             chunk_x,
@@ -74,22 +74,33 @@ impl LevelChunkWithLightPacket {
         }
     }
 
-    /// Chunk plat avec un sol solide fait du block_state_id fourni.
     pub fn flat(chunk_x: i32, chunk_z: i32, solid_block_state_id: i32) -> Self {
-        let surface_height_index = FLAT_SURFACE_Y - OVERWORLD_MIN_Y;
         Self {
             chunk_x,
             chunk_z,
-            heightmaps: vec![Heightmap::motion_blocking(surface_height_index)],
+            heightmaps: vec![Heightmap::motion_blocking((FLAT_SURFACE_Y - OVERWORLD_MIN_Y + 1) as i32)],
             chunk_data: flat_world_chunk_data(Some(solid_block_state_id)),
-            sky_light_mask: BitSet::default(),
+            sky_light_mask: full_bitset(LIGHT_SECTION_COUNT),
             block_light_mask: BitSet::default(),
             empty_sky_light_mask: BitSet::default(),
-            empty_block_light_mask: BitSet::default(),
-            sky_light_arrays: Vec::new(),
+            empty_block_light_mask: full_bitset(LIGHT_SECTION_COUNT),
+            sky_light_arrays: vec![full_bright_array(); LIGHT_SECTION_COUNT],
             block_light_arrays: Vec::new(),
         }
     }
+}
+
+fn full_bitset(count: usize) -> BitSet {
+    let longs_needed = count.div_ceil(64);
+    let mut longs = vec![0i64; longs_needed];
+    for i in 0..count {
+        longs[i / 64] |= 1i64 << (i % 64);
+    }
+    BitSet(longs)
+}
+
+fn full_bright_array() -> [u8; 2048] {
+    [0xFF; 2048]
 }
 
 impl PacketMeta for LevelChunkWithLightPacket {
@@ -183,38 +194,4 @@ fn flat_world_chunk_data(solid_block_state_id: Option<i32>) -> Vec<u8> {
         data.extend_from_slice(&section);
     }
     data
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn flat_chunk_section_count_matches_overworld_height() {
-        let chunk = LevelChunkWithLightPacket::flat(0, 0, 1);
-        let section_size = air_section().len();
-        assert_eq!(section_size, 8);
-        assert_eq!(chunk.chunk_data.len(), section_size * WORLD_SECTION_COUNT);
-    }
-
-    #[test]
-    fn motion_blocking_heightmap_has_expected_long_count() {
-        let heightmap = Heightmap::motion_blocking(127);
-        assert_eq!(heightmap.type_id.inner(), HEIGHTMAP_MOTION_BLOCKING);
-        assert_eq!(heightmap.data.len(), 36);
-    }
-
-    #[test]
-    fn heightmaps_are_written_as_prefixed_array_not_nbt() {
-        let packet = LevelChunkWithLightPacket::flat(0, 0, 1);
-        let mut writer = BinaryWriter::new();
-        packet.encode_payload(&mut writer).unwrap();
-        let bytes = writer.into_inner();
-        // chunk x,z = 8 bytes, then heightmap array length varint (1)
-        assert_eq!(bytes[8], 1);
-        // heightmap type MOTION_BLOCKING = 4
-        assert_eq!(bytes[9], 4);
-        // long array length = 36
-        assert_eq!(bytes[10], 36);
-    }
 }

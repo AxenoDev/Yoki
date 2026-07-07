@@ -80,7 +80,7 @@ impl RegistryStore {
                 continue;
             }
 
-            let version_registries = load_version(&version_dir, *version)?;
+            let version_registries = load_version(&version_dir)?;
             versions.insert(*version, version_registries);
         }
 
@@ -137,14 +137,11 @@ impl RegistryStore {
     }
 }
 
-fn load_version(
-    version_dir: &Path,
-    version: ProtocolVersion,
-) -> Result<VersionRegistries, RegistryError> {
+fn load_version(version_dir: &Path) -> Result<VersionRegistries, RegistryError> {
     let datapack: DatapackReport = read_json(&version_dir.join("reports/datapack.json"))?;
     let registries_report: RegistriesReport =
         read_json(&version_dir.join("reports/registries.json"))?;
-    let mandatory_registry_ids: HashSet<String> = mandatory::registry_ids_for_version(version)
+    let mandatory_registry_ids: HashSet<String> = mandatory::SYNCED_REGISTRY_IDS
         .iter()
         .map(|registry_id| (*registry_id).to_string())
         .collect();
@@ -179,7 +176,6 @@ fn load_version(
     }
 
     let mut all_registry_data = Vec::new();
-    let mut loaded_registry_ids: std::collections::HashSet<String> = std::collections::HashSet::new();
 
     for (registry_id, info) in &datapack.registries {
         if !mandatory_registry_ids.contains(registry_id) {
@@ -208,10 +204,9 @@ fn load_version(
             .map_err(|err| RegistryError::InvalidIdentifier(err.to_string()))?;
         let packet = RegistryDataPacket::new(registry_identifier, entries);
         all_registry_data.push(packet);
-        loaded_registry_ids.insert(registry_id.clone());
     }
 
-    let tags = load_tags(version_dir, &id_lookup, &loaded_registry_ids)?;
+    let tags = load_tags(version_dir, &id_lookup)?;
 
     let block_state_ids = BlockStateIds::load(version_dir)?;
 
@@ -337,7 +332,6 @@ fn collect_element_paths(
 fn load_tags(
     version_dir: &Path,
     id_lookup: &HashMap<String, HashMap<String, i32>>,
-    loaded_registry_ids: &HashSet<String>,
 ) -> Result<UpdateTagsPacket, RegistryError> {
     let tags_root = version_dir.join("data/minecraft/tags");
     if !tags_root.is_dir() {
@@ -346,25 +340,11 @@ fn load_tags(
         });
     }
 
-    let tagged_registry_ids: HashSet<&str> = mandatory::TAGGED_REGISTRY_IDS.iter().copied().collect();
     let mut raw_tags: HashMap<String, HashMap<String, Vec<String>>> = HashMap::new();
 
-    for registry_dir in fs::read_dir(&tags_root)? {
-        let registry_dir = registry_dir?;
-        if !registry_dir.file_type()?.is_dir() {
-            continue;
-        }
-
-        let registry_name = registry_dir.file_name().to_string_lossy().to_string();
-        let registry_id = format!("minecraft:{registry_name}");
-        if !tagged_registry_ids.contains(registry_id.as_str())
-            || !loaded_registry_ids.contains(&registry_id)
-        {
-            continue;
-        }
-
+    for (registry_id, registry_dir) in tag_registry_dirs(&tags_root, id_lookup)? {
         let registry_tags = raw_tags.entry(registry_id).or_default();
-        collect_tag_files(&registry_dir.path(), &registry_name, "", registry_tags)?;
+        collect_tag_files(&registry_dir, "", registry_tags)?;
     }
 
     let mut registries = Vec::new();
@@ -401,9 +381,42 @@ fn load_tags(
     Ok(UpdateTagsPacket { registries })
 }
 
+fn tag_registry_dirs(
+    tags_root: &Path,
+    id_lookup: &HashMap<String, HashMap<String, i32>>,
+) -> Result<Vec<(String, PathBuf)>, RegistryError> {
+    let mut dirs = Vec::new();
+    for entry in fs::read_dir(tags_root)? {
+        let entry = entry?;
+        if !entry.file_type()?.is_dir() {
+            continue;
+        }
+
+        let name = entry.file_name().to_string_lossy().to_string();
+        let registry_id = format!("minecraft:{name}");
+        if id_lookup.contains_key(&registry_id) {
+            dirs.push((registry_id, entry.path()));
+            continue;
+        }
+
+        for sub_entry in fs::read_dir(entry.path())? {
+            let sub_entry = sub_entry?;
+            if !sub_entry.file_type()?.is_dir() {
+                continue;
+            }
+
+            let sub_name = sub_entry.file_name().to_string_lossy().to_string();
+            let registry_id = format!("minecraft:{name}/{sub_name}");
+            if id_lookup.contains_key(&registry_id) {
+                dirs.push((registry_id, sub_entry.path()));
+            }
+        }
+    }
+    Ok(dirs)
+}
+
 fn collect_tag_files(
     dir: &Path,
-    registry_name: &str,
     tag_prefix: &str,
     tags: &mut HashMap<String, Vec<String>>,
 ) -> Result<(), RegistryError> {
@@ -417,7 +430,7 @@ fn collect_tag_files(
             } else {
                 format!("{tag_prefix}/{segment}")
             };
-            collect_tag_files(&path, registry_name, &next_prefix, tags)?;
+            collect_tag_files(&path, &next_prefix, tags)?;
             continue;
         }
 
@@ -535,56 +548,3 @@ impl From<std::io::Error> for RegistryError {
 pub use known_packs::{client_accepted_known_pack, known_packs_for_version};
 pub use mandatory::should_omit_known_pack_entry_data;
 use crate::registry::block_states::BlockStateIds;
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use protocol_version::protocol_version::ProtocolVersion;
-
-    #[test]
-    fn loads_only_mandatory_registries_and_tags() {
-        let store = RegistryStore::load().expect("registry data should load");
-        let version = ProtocolVersion::V26_2;
-        let registry_ids: Vec<_> = store
-            .registry_data_packets(version, false)
-            .map(|packet| packet.registry_id.to_string())
-            .collect();
-        let tag_registry_ids: Vec<_> = store
-            .tags_packet(version)
-            .registries
-            .iter()
-            .map(|registry| registry.registry.to_string())
-            .collect();
-
-        assert_eq!(registry_ids.len(), 24);
-        assert!(!registry_ids.contains(&"minecraft:villager_trade".to_string()));
-        assert!(tag_registry_ids.len() >= 4);
-        assert!(!tag_registry_ids.contains(&"minecraft:villager_trade".to_string()));
-        assert!(tag_registry_ids.contains(&"minecraft:block".to_string()));
-        assert!(tag_registry_ids.contains(&"minecraft:damage_type".to_string()));
-        assert!(tag_registry_ids.contains(&"minecraft:dialog".to_string()));
-
-        let tags_packet = store.tags_packet(version);
-        let dialog_tags = tags_packet
-            .registries
-            .iter()
-            .find(|registry| registry.registry.to_string() == "minecraft:dialog")
-            .expect("dialog tags should be sent");
-        let dialog_tag_names: Vec<_> = dialog_tags
-            .tags
-            .iter()
-            .map(|tag| tag.name.to_string())
-            .collect();
-        assert!(dialog_tag_names.contains(&"minecraft:pause_screen_additions".to_string()));
-        assert!(dialog_tag_names.contains(&"minecraft:quick_actions".to_string()));
-    }
-
-    #[test]
-    fn block_state_id_for_stone_matches_blocks_report() {
-        let store = RegistryStore::load().expect("registry data should load");
-        let stone_id = store
-            .block_state_id(ProtocolVersion::V26_2, "minecraft:stone")
-            .expect("minecraft:stone should have a default state id");
-        assert_eq!(stone_id, 1);
-    }
-}

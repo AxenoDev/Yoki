@@ -30,8 +30,18 @@ impl BlockStateIds {
 
         let mut default_state_ids = HashMap::new();
         for (name, entry) in parsed {
-            if let Some(default) = entry.states.iter().find(|s| s.default) {
-                default_state_ids.insert(name, default.id);
+            let default_id = entry.states.iter()
+                .find(|s| s.default)
+                .map(|s| s.id)
+                .or_else(|| {
+                    if entry.states.len() == 1 {
+                        Some(entry.states[0].id)
+                    } else {
+                        None
+                    }
+                });
+            if let Some(id) = default_id {
+                default_state_ids.insert(name, id);
             }
         }
 
