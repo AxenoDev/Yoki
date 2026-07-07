@@ -1,10 +1,7 @@
 use crate::packet::{OutgoingPacket, PacketDirection, PacketMeta};
 use crate::packets::play::data::DeathLocation;
 use protocol_version::protocol_version::ProtocolVersion;
-use yoki_binutils::{
-    BinaryWriter, ProtocolError, WriteBytes,
-    data_types::VarInt,
-};
+use yoki_binutils::{BinaryWriter, ProtocolError, WriteBytes, data_types::VarInt};
 use yoki_identifier::Identifier;
 
 #[derive(Debug, Clone)]

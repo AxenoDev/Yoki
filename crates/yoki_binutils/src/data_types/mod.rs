@@ -1,10 +1,10 @@
 mod bool;
-mod nbt;
 mod f32;
 mod f64;
 mod i32;
 mod i64;
 mod i8;
+mod nbt;
 mod option;
 mod optional;
 mod string;

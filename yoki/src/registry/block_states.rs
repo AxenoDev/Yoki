@@ -1,7 +1,7 @@
+use crate::registry::RegistryError;
+use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::Path;
-use serde::Deserialize;
-use crate::registry::RegistryError;
 
 #[derive(Debug, Deserialize)]
 struct BlockEntry {
@@ -30,7 +30,9 @@ impl BlockStateIds {
 
         let mut default_state_ids = HashMap::new();
         for (name, entry) in parsed {
-            let default_id = entry.states.iter()
+            let default_id = entry
+                .states
+                .iter()
                 .find(|s| s.default)
                 .map(|s| s.id)
                 .or_else(|| {

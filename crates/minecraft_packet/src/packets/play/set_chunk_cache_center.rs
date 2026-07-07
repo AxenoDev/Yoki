@@ -1,8 +1,5 @@
 use crate::packet::{OutgoingPacket, PacketDirection, PacketMeta};
-use yoki_binutils::{
-    BinaryWriter, ProtocolError, WriteBytes,
-    data_types::VarInt,
-};
+use yoki_binutils::{BinaryWriter, ProtocolError, WriteBytes, data_types::VarInt};
 
 #[derive(Debug, Clone)]
 pub struct SetChunkCacheCenterPacket {

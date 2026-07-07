@@ -1,6 +1,5 @@
 use yoki_binutils::{
-    BinaryError, BinaryWriter, ProtocolError, ProtocolWrite, WriteBytes,
-    data_types::NbtTag,
+    BinaryError, BinaryWriter, ProtocolError, ProtocolWrite, WriteBytes, data_types::NbtTag,
 };
 use yoki_identifier::Identifier;
 use yoki_macros::PacketOut;

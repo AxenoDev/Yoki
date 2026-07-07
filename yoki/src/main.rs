@@ -49,13 +49,7 @@ async fn handle_connection(
             &raw,
         ) {
             Ok(packet) => packet,
-            Err(ProtocolError::UnknownPacket { id, conn }) => {
-                // eprintln!(
-                //     "ignoring unknown packet id={id} in state={conn:?} from {}",
-                //     client_state.get_username()
-                // );
-                continue;
-            }
+            Err(ProtocolError::UnknownPacket { .. }) => continue,
             Err(err) => return Err(err),
         };
 

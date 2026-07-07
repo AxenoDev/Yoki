@@ -1,5 +1,5 @@
-use minecraft_packet::packets::login::login_acknowledged::LoginAcknowledgedPacket;
 use minecraft_packet::packets::configuration::known_packs::SelectKnownPacksClientboundPacket;
+use minecraft_packet::packets::login::login_acknowledged::LoginAcknowledgedPacket;
 use minecraft_protocol::State;
 
 use crate::{

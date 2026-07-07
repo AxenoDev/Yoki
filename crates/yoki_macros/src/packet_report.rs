@@ -1,12 +1,12 @@
-use std::collections::HashMap;
-use std::sync::OnceLock;
+use crate::attrs::{packet_type_from_variant_field, parse_protocol_id_attr, state_str_to_ident};
 use proc_macro::TokenStream;
-use std::path::{Path, PathBuf};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::{Data, DeriveInput, Fields, parse_macro_input};
 use serde::Deserialize;
-use crate::attrs::{packet_type_from_variant_field, parse_protocol_id_attr, state_str_to_ident};
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
+use syn::{Data, DeriveInput, Fields, parse_macro_input};
 
 pub fn expand(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -112,7 +112,11 @@ fn load_registry() -> &'static Vec<(String, Registry)> {
 }
 
 fn resolve_packet_id(registry: &Registry, state: &str, bound: &str, name: &str) -> Option<i32> {
-    registry.get(state)?.get(bound)?.get(name).map(|e| e.protocol_id)
+    registry
+        .get(state)?
+        .get(bound)?
+        .get(name)
+        .map(|e| e.protocol_id)
 }
 
 fn expand_derive(input: &DeriveInput) -> syn::Result<TokenStream2> {

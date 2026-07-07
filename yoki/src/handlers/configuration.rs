@@ -1,9 +1,7 @@
 use minecraft_packet::packets::configuration::{
     acknowledge_finish_configuration::AcknowledgeFinishConfigurationPacket,
-    client_information::ClientInformationPacket,
-    finish_configuration::FinishConfigurationPacket,
-    known_packs::SelectKnownPacksPacket,
-    plugin_message::PluginMessagePacket,
+    client_information::ClientInformationPacket, finish_configuration::FinishConfigurationPacket,
+    known_packs::SelectKnownPacksPacket, plugin_message::PluginMessagePacket,
     update_enabled_features::UpdateEnabledFeaturesPacket,
 };
 use minecraft_protocol::State;
@@ -67,7 +65,9 @@ impl PacketHandler for SelectKnownPacksPacket {
         batch.queue_packet(PacketRegistry::UpdateTags(
             server_state.registry_store().tags_packet(protocol_version),
         ));
-        batch.queue_packet(PacketRegistry::FinishConfiguration(FinishConfigurationPacket));
+        batch.queue_packet(PacketRegistry::FinishConfiguration(
+            FinishConfigurationPacket,
+        ));
 
         Ok(batch)
     }

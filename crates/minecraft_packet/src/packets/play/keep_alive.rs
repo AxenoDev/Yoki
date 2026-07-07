@@ -1,7 +1,5 @@
 use crate::packet::{IncomingPacket, OutgoingPacket, PacketDirection, PacketMeta};
-use yoki_binutils::{
-    BinaryReader, BinaryWriter, ProtocolError, ReadBytes, WriteBytes,
-};
+use yoki_binutils::{BinaryReader, BinaryWriter, ProtocolError, ReadBytes, WriteBytes};
 
 #[derive(Debug, Clone, Copy)]
 pub struct ServerboundKeepAlivePacket {
@@ -14,7 +12,9 @@ impl PacketMeta for ServerboundKeepAlivePacket {
 
 impl IncomingPacket for ServerboundKeepAlivePacket {
     fn decode_payload(reader: &mut BinaryReader<'_>) -> Result<Self, ProtocolError> {
-        Ok(Self { id: i64::read(reader)? })
+        Ok(Self {
+            id: i64::read(reader)?,
+        })
     }
 }
 

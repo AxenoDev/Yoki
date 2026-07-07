@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use serde::Deserialize;
+use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]
 struct BlockEntry {
@@ -25,7 +25,9 @@ impl BlockRegistry {
 
         let mut default_state_ids = HashMap::new();
         for (name, entry) in parsed {
-            let default_id = entry.states.iter()
+            let default_id = entry
+                .states
+                .iter()
                 .find(|s| s.default)
                 .map(|s| s.id)
                 .or_else(|| {

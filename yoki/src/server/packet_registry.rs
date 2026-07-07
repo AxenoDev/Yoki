@@ -1,3 +1,4 @@
+use minecraft_packet::packets::play::level_chunk_with_light::LevelChunkWithLightPacket;
 use minecraft_packet::packets::play::{
     game_event::GameEventPacket,
     keep_alive::{ClientboundKeepAlivePacket, ServerboundKeepAlivePacket},
@@ -15,7 +16,8 @@ use minecraft_packet::packets::{
         known_packs::{SelectKnownPacksClientboundPacket, SelectKnownPacksPacket},
         plugin_message::PluginMessagePacket,
         registry_data::RegistryDataPacket,
-        update_enabled_features::UpdateEnabledFeaturesPacket, update_tags::UpdateTagsPacket,
+        update_enabled_features::UpdateEnabledFeaturesPacket,
+        update_tags::UpdateTagsPacket,
     },
     login::{
         cookie_response_login::CookieResponseLoginPacket,
@@ -25,7 +27,6 @@ use minecraft_packet::packets::{
     },
     play::login::LoginPacket,
 };
-use minecraft_packet::packets::play::level_chunk_with_light::LevelChunkWithLightPacket;
 use yoki_macros::PacketReport;
 
 use crate::{
@@ -39,79 +40,159 @@ pub enum PacketRegistry {
     #[protocol_id(state = "handshake", bound = "serverbound", id = "minecraft:intention")]
     Handshake(HandshakePacket),
 
-    #[protocol_id(state = "status", bound = "serverbound", id = "minecraft:status_request")]
+    #[protocol_id(
+        state = "status",
+        bound = "serverbound",
+        id = "minecraft:status_request"
+    )]
     StatusRequest(StatusRequestPacket),
 
-    #[protocol_id(state = "status", bound = "clientbound", id = "minecraft:status_response")]
+    #[protocol_id(
+        state = "status",
+        bound = "clientbound",
+        id = "minecraft:status_response"
+    )]
     StatusResponse(StatusResponsePacket),
 
     #[protocol_id(state = "status", bound = "serverbound", id = "minecraft:ping_request")]
     PingRequest(PingRequestPacket),
 
-    #[protocol_id(state = "status", bound = "clientbound", id = "minecraft:pong_response")]
+    #[protocol_id(
+        state = "status",
+        bound = "clientbound",
+        id = "minecraft:pong_response"
+    )]
     PongResponse(PongResponsePacket),
 
     #[protocol_id(state = "login", bound = "serverbound", id = "minecraft:hello")]
     LoginStart(LoginStartPacket),
 
-    #[protocol_id(state = "login", bound = "clientbound", id = "minecraft:login_finished")]
+    #[protocol_id(
+        state = "login",
+        bound = "clientbound",
+        id = "minecraft:login_finished"
+    )]
     LoginSuccess(LoginSuccessPacket),
 
     #[protocol_id(state = "login", bound = "serverbound", id = "minecraft:key")]
     EncryptionResponse(EncryptionResponsePacket),
 
-    #[protocol_id(state = "login", bound = "serverbound", id = "minecraft:custom_query_answer")]
+    #[protocol_id(
+        state = "login",
+        bound = "serverbound",
+        id = "minecraft:custom_query_answer"
+    )]
     LoginPluginResponse(LoginPluginResponsePacket),
 
-    #[protocol_id(state = "login", bound = "serverbound", id = "minecraft:login_acknowledged")]
+    #[protocol_id(
+        state = "login",
+        bound = "serverbound",
+        id = "minecraft:login_acknowledged"
+    )]
     LoginAcknowledged(LoginAcknowledgedPacket),
 
-    #[protocol_id(state = "login", bound = "serverbound", id = "minecraft:cookie_response")]
+    #[protocol_id(
+        state = "login",
+        bound = "serverbound",
+        id = "minecraft:cookie_response"
+    )]
     CookieResponseLogin(CookieResponseLoginPacket),
 
-    #[protocol_id(state = "configuration", bound = "serverbound", id = "minecraft:client_information")]
+    #[protocol_id(
+        state = "configuration",
+        bound = "serverbound",
+        id = "minecraft:client_information"
+    )]
     ClientInformation(ClientInformationPacket),
 
-    #[protocol_id(state = "configuration", bound = "serverbound", id = "minecraft:custom_payload")]
+    #[protocol_id(
+        state = "configuration",
+        bound = "serverbound",
+        id = "minecraft:custom_payload"
+    )]
     PluginMessage(PluginMessagePacket),
 
-    #[protocol_id(state = "configuration", bound = "serverbound", id = "minecraft:finish_configuration")]
+    #[protocol_id(
+        state = "configuration",
+        bound = "serverbound",
+        id = "minecraft:finish_configuration"
+    )]
     AcknowledgeFinishConfiguration(AcknowledgeFinishConfigurationPacket),
 
-    #[protocol_id(state = "configuration", bound = "clientbound", id = "minecraft:finish_configuration")]
+    #[protocol_id(
+        state = "configuration",
+        bound = "clientbound",
+        id = "minecraft:finish_configuration"
+    )]
     FinishConfiguration(FinishConfigurationPacket),
 
-    #[protocol_id(state = "configuration", bound = "clientbound", id = "minecraft:select_known_packs")]
+    #[protocol_id(
+        state = "configuration",
+        bound = "clientbound",
+        id = "minecraft:select_known_packs"
+    )]
     SelectKnownPacksClientbound(SelectKnownPacksClientboundPacket),
 
-    #[protocol_id(state = "configuration", bound = "serverbound", id = "minecraft:select_known_packs")]
+    #[protocol_id(
+        state = "configuration",
+        bound = "serverbound",
+        id = "minecraft:select_known_packs"
+    )]
     SelectKnownPacks(SelectKnownPacksPacket),
 
-    #[protocol_id(state = "configuration", bound = "clientbound", id = "minecraft:update_enabled_features")]
+    #[protocol_id(
+        state = "configuration",
+        bound = "clientbound",
+        id = "minecraft:update_enabled_features"
+    )]
     UpdateEnabledFeatures(UpdateEnabledFeaturesPacket),
 
-    #[protocol_id(state = "configuration", bound = "clientbound", id = "minecraft:update_tags")]
+    #[protocol_id(
+        state = "configuration",
+        bound = "clientbound",
+        id = "minecraft:update_tags"
+    )]
     UpdateTags(UpdateTagsPacket),
 
-    #[protocol_id(state = "configuration", bound = "clientbound", id = "minecraft:registry_data")]
+    #[protocol_id(
+        state = "configuration",
+        bound = "clientbound",
+        id = "minecraft:registry_data"
+    )]
     RegistryData(RegistryDataPacket),
 
     #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:login")]
     Login(LoginPacket),
 
-    #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:player_abilities")]
+    #[protocol_id(
+        state = "play",
+        bound = "clientbound",
+        id = "minecraft:player_abilities"
+    )]
     PlayerAbilities(PlayerAbilitiesPacket),
 
-    #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:player_position")]
+    #[protocol_id(
+        state = "play",
+        bound = "clientbound",
+        id = "minecraft:player_position"
+    )]
     SynchronizePlayerPosition(SynchronizePlayerPositionPacket),
 
     #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:game_event")]
     GameEvent(GameEventPacket),
 
-    #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:set_chunk_cache_center")]
+    #[protocol_id(
+        state = "play",
+        bound = "clientbound",
+        id = "minecraft:set_chunk_cache_center"
+    )]
     SetChunkCacheCenter(SetChunkCacheCenterPacket),
 
-    #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:level_chunk_with_light")]
+    #[protocol_id(
+        state = "play",
+        bound = "clientbound",
+        id = "minecraft:level_chunk_with_light"
+    )]
     LevelChunkWithLight(LevelChunkWithLightPacket),
 
     #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:keep_alive")]

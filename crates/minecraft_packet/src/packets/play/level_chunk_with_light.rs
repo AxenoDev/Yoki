@@ -1,8 +1,5 @@
 use crate::packet::{OutgoingPacket, PacketDirection, PacketMeta};
-use yoki_binutils::{
-    BinaryError, BinaryWriter, ProtocolError, WriteBytes,
-    data_types::VarInt,
-};
+use yoki_binutils::{BinaryError, BinaryWriter, ProtocolError, WriteBytes, data_types::VarInt};
 
 pub const WORLD_SECTION_COUNT: usize = 24;
 pub const OVERWORLD_MIN_Y: i32 = -64;
@@ -78,7 +75,9 @@ impl LevelChunkWithLightPacket {
         Self {
             chunk_x,
             chunk_z,
-            heightmaps: vec![Heightmap::motion_blocking((FLAT_SURFACE_Y - OVERWORLD_MIN_Y + 1) as i32)],
+            heightmaps: vec![Heightmap::motion_blocking(
+                FLAT_SURFACE_Y - OVERWORLD_MIN_Y + 1,
+            )],
             chunk_data: flat_world_chunk_data(Some(solid_block_state_id)),
             sky_light_mask: full_bitset(LIGHT_SECTION_COUNT),
             block_light_mask: BitSet::default(),
@@ -143,7 +142,7 @@ fn pack_heightmap_uniform(value: u16, bits_per_entry: u8) -> Vec<i64> {
 
 fn pack_heightmap(values: &[u16], bits_per_entry: u8) -> Vec<i64> {
     let bits = bits_per_entry as usize;
-    let long_count = (values.len() * bits + 63) / 64;
+    let long_count = (values.len() * bits).div_ceil(64);
     let mut data = vec![0u64; long_count];
 
     for (index, value) in values.iter().enumerate() {

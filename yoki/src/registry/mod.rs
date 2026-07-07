@@ -1,7 +1,6 @@
+mod block_states;
 mod known_packs;
 mod mandatory;
-mod dimension_type;
-mod block_states;
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs;
@@ -14,8 +13,8 @@ use minecraft_packet::packets::configuration::{
 use protocol_version::protocol_version::ProtocolVersion;
 use serde::Deserialize;
 use serde_json::Value;
-use yoki_binutils::data_types::{NbtTag, json_to_nbt};
 use yoki_binutils::data_types::VarInt;
+use yoki_binutils::data_types::{NbtTag, json_to_nbt};
 use yoki_identifier::Identifier;
 
 #[derive(Debug)]
@@ -285,7 +284,9 @@ fn list_element_entries(
     version_dir: &Path,
     registry_id: &str,
 ) -> Result<Vec<(String, PathBuf)>, RegistryError> {
-    let registry_path = registry_id.strip_prefix("minecraft:").unwrap_or(registry_id);
+    let registry_path = registry_id
+        .strip_prefix("minecraft:")
+        .unwrap_or(registry_id);
     let registry_dir = version_dir.join("data/minecraft").join(registry_path);
     if !registry_dir.is_dir() {
         return Err(RegistryError::MissingRegistryDir(registry_id.to_string()));
@@ -354,10 +355,11 @@ fn load_tags(
 
         for (tag_name, values) in &tags {
             let mut entries = Vec::new();
-            for value in resolve_tag_values(values, &tags, entry_ids) {
-                if let Some(protocol_id) = value {
-                    entries.push(VarInt::new(protocol_id));
-                }
+            for protocol_id in resolve_tag_values(values, &tags, entry_ids)
+                .into_iter()
+                .flatten()
+            {
+                entries.push(VarInt::new(protocol_id));
             }
 
             resolved_tags.push(TagEntry {
@@ -493,7 +495,8 @@ fn resolve_tag_values(
 }
 
 fn read_json<T: for<'de> Deserialize<'de>>(path: &Path) -> Result<T, RegistryError> {
-    let raw = fs::read_to_string(path).map_err(|err| RegistryError::Io(path.display().to_string(), err))?;
+    let raw = fs::read_to_string(path)
+        .map_err(|err| RegistryError::Io(path.display().to_string(), err))?;
     serde_json::from_str(&raw).map_err(|err| RegistryError::Json(path.display().to_string(), err))
 }
 
@@ -545,6 +548,6 @@ impl From<std::io::Error> for RegistryError {
     }
 }
 
+use crate::registry::block_states::BlockStateIds;
 pub use known_packs::{client_accepted_known_pack, known_packs_for_version};
 pub use mandatory::should_omit_known_pack_entry_data;
-use crate::registry::block_states::BlockStateIds;

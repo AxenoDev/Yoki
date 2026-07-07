@@ -1,4 +1,4 @@
-use strum_macros::{Display, AsRefStr};
+use strum_macros::{AsRefStr, Display};
 
 #[derive(Copy, Debug, PartialEq, Clone, Eq, Hash, Display, AsRefStr)]
 pub enum DirectionBound {
