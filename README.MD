@@ -1,8 +1,8 @@
 <div align="center">
 
 <img src=".github/assets/yokilogo.png" width="80">
-
-# Yoki
+<br>
+<img src=".github/assets/yokilogotext.png" width="80">
 
 **A high-performance Minecraft server written from scratch in Rust**
 
