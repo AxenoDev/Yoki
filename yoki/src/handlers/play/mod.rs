@@ -6,7 +6,7 @@ use minecraft_packet::packets::play::{
     animate::{ANIMATION_SWING_MAIN_ARM, ANIMATION_SWING_OFFHAND, AnimatePacket},
     entity_position_sync::EntityPositionSyncPacket,
     game_event::GameEventPacket,
-    keep_alive::{ClientboundKeepAlivePacket, ServerboundKeepAlivePacket},
+    keep_alive::ServerboundKeepAlivePacket,
     login::LoginPacket,
     move_player::{
         FLAG_ON_GROUND, MovePlayerPosPacket, MovePlayerPosRotPacket, MovePlayerRotPacket,
@@ -310,10 +310,6 @@ impl PacketHandler for ServerboundKeepAlivePacket {
         _client_state: &mut ClientState,
         _server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
-        let mut batch = Batch::new();
-        batch.queue_packet(PacketRegistry::ClientboundKeepAlive(
-            ClientboundKeepAlivePacket::new(self.id),
-        ));
-        Ok(batch)
+        Ok(Batch::new())
     }
 }

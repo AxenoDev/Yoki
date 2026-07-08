@@ -1,13 +1,17 @@
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use minecraft_packet::ConnectionWriter;
+use minecraft_packet::packets::play::keep_alive::ClientboundKeepAlivePacket;
 use protocol_version::protocol_version::ProtocolVersion;
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 
 use crate::server::game_profile::GameProfile;
 use crate::server::packet_registry::PacketRegistry;
+
+const KEEP_ALIVE_INTERVAL: Duration = Duration::from_secs(15);
 
 #[derive(Debug)]
 pub enum Outgoing {
@@ -35,6 +39,26 @@ pub fn spawn_writer_task(mut writer: ConnectionWriter, mut receiver: UnboundedRe
                         break;
                     }
                 }
+            }
+        }
+    });
+}
+
+pub fn spawn_keep_alive_task(sender: OutgoingSender) {
+    tokio::spawn(async move {
+        let mut interval = tokio::time::interval(KEEP_ALIVE_INTERVAL);
+        interval.tick().await;
+
+        loop {
+            interval.tick().await;
+            let packet = PacketRegistry::ClientboundKeepAlive(ClientboundKeepAlivePacket::new(
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .map(|elapsed| elapsed.as_millis() as i64)
+                    .unwrap_or_default(),
+            ));
+            if sender.send(Outgoing::Packet(Box::new(packet))).is_err() {
+                break;
             }
         }
     });

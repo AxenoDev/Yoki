@@ -15,7 +15,7 @@ use crate::{
     handlers::play::{queue_join_play_packets, queue_player_spawns, spawn_position},
     registry::{client_accepted_known_pack, should_omit_known_pack_entry_data},
     server::packet_registry::PacketRegistry,
-    server::players::ConnectedPlayer,
+    server::players::{ConnectedPlayer, spawn_keep_alive_task},
     server::{ClientState, PacketHandler, packet_handler::PacketHandlerError},
 };
 
@@ -99,6 +99,8 @@ impl PacketHandler for AcknowledgeFinishConfigurationPacket {
 
         batch.queue_both_state_change(State::Play);
         queue_join_play_packets(&mut batch, protocol_version, server_state, entity_id);
+
+        spawn_keep_alive_task(sender.clone());
 
         let player = Arc::new(ConnectedPlayer::new(
             entity_id,
