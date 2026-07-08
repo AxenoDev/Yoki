@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src=".github/assets/yokilogo.png" width="80">
+
 # Yoki
 
 **A high-performance Minecraft server written from scratch in Rust**
@@ -12,7 +14,9 @@
 
 </div>
 
-Yoki is a lightweight, blazing-fast Minecraft server implementation built from the ground up in Rust. Designed as a modern, memory-efficient alternative to traditional Java servers like Paper, it handles game logic, worlds, and player connections natively with optimal performance.
+Yoki is a lightweight, blazing-fast Minecraft server implementation built from the ground up in Rust. Designed as a
+modern, memory-efficient alternative to traditional Java servers like Paper, it handles game logic, worlds, and player
+connections natively with optimal performance.
 
 ## Getting Started
 
