@@ -27,6 +27,7 @@ struct VersionRegistries {
     all_registry_data: Vec<RegistryDataPacket>,
     tags: UpdateTagsPacket,
     block_state_ids: BlockStateIds,
+    player_entity_type_id: i32,
 }
 
 #[derive(Debug, Deserialize)]
@@ -134,6 +135,12 @@ impl RegistryStore {
             .get(&version.data())
             .and_then(|data| data.block_state_ids.default_state_id(block_name))
     }
+
+    pub fn player_entity_type_id(&self, version: ProtocolVersion) -> Option<i32> {
+        self.versions
+            .get(&version.data())
+            .map(|data| data.player_entity_type_id)
+    }
 }
 
 fn load_version(version_dir: &Path) -> Result<VersionRegistries, RegistryError> {
@@ -209,10 +216,19 @@ fn load_version(version_dir: &Path) -> Result<VersionRegistries, RegistryError> 
 
     let block_state_ids = BlockStateIds::load(version_dir)?;
 
+    let player_entity_type_id = id_lookup
+        .get("minecraft:entity_type")
+        .and_then(|entries| entries.get("minecraft:player"))
+        .copied()
+        .ok_or_else(|| {
+            RegistryError::MissingProtocolId("minecraft:entity_type/minecraft:player".to_string())
+        })?;
+
     Ok(VersionRegistries {
         all_registry_data,
         tags,
         block_state_ids,
+        player_entity_type_id,
     })
 }
 

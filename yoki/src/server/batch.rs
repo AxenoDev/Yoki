@@ -4,7 +4,6 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 
 use futures::Stream;
-use minecraft_packet::Connection;
 use minecraft_protocol::{DirectionBound, State};
 use yoki_binutils::ProtocolError;
 
@@ -89,19 +88,16 @@ impl Batch {
         }
     }
 
-    pub async fn execute(
-        self,
-        conn: &mut Connection,
-        client_state: &mut ClientState,
-    ) -> Result<(), ProtocolError> {
+    pub async fn execute(self, client_state: &mut ClientState) -> Result<(), ProtocolError> {
         use futures::StreamExt;
 
         let mut stream = self.into_stream();
         while let Some(item) = stream.next().await {
             match item {
                 BatchItem::Packet(packet) => {
-                    let raw = packet.encode_clientbound(client_state.protocol_version())?;
-                    conn.send_raw(&raw).await?;
+                    if !client_state.queue_outgoing(packet) {
+                        return Err(ProtocolError::Io("connection writer closed".to_string()));
+                    }
                 }
                 BatchItem::StateChange(direction, new_state) => {
                     client_state.set_state(direction, new_state);

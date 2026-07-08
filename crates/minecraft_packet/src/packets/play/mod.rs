@@ -1,8 +1,17 @@
-mod data;
+pub mod add_entity;
+pub mod animate;
+pub mod data;
+pub mod entity_position_sync;
 pub mod game_event;
 pub mod keep_alive;
 pub mod level_chunk_with_light;
 pub mod login;
+pub mod move_player;
 pub mod player_abilities;
+pub mod player_info_remove;
+pub mod player_info_update;
+pub mod remove_entities;
+pub mod rotate_head;
 pub mod set_chunk_cache_center;
+pub mod swing;
 pub mod synchronize_player_position;

@@ -1,9 +1,21 @@
 use minecraft_packet::packets::play::level_chunk_with_light::LevelChunkWithLightPacket;
 use minecraft_packet::packets::play::{
+    add_entity::AddEntityPacket,
+    animate::AnimatePacket,
+    entity_position_sync::EntityPositionSyncPacket,
     game_event::GameEventPacket,
     keep_alive::{ClientboundKeepAlivePacket, ServerboundKeepAlivePacket},
+    move_player::{
+        MovePlayerPosPacket, MovePlayerPosRotPacket, MovePlayerRotPacket,
+        MovePlayerStatusOnlyPacket,
+    },
     player_abilities::PlayerAbilitiesPacket,
+    player_info_remove::PlayerInfoRemovePacket,
+    player_info_update::PlayerInfoUpdatePacket,
+    remove_entities::RemoveEntitiesPacket,
+    rotate_head::RotateHeadPacket,
     set_chunk_cache_center::SetChunkCacheCenterPacket,
+    swing::SwingPacket,
     synchronize_player_position::SynchronizePlayerPositionPacket,
 };
 use minecraft_packet::packets::{
@@ -200,6 +212,74 @@ pub enum PacketRegistry {
 
     #[protocol_id(state = "play", bound = "serverbound", id = "minecraft:keep_alive")]
     ServerboundKeepAlive(ServerboundKeepAlivePacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "clientbound",
+        id = "minecraft:player_info_update"
+    )]
+    PlayerInfoUpdate(PlayerInfoUpdatePacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "clientbound",
+        id = "minecraft:player_info_remove"
+    )]
+    PlayerInfoRemove(PlayerInfoRemovePacket),
+
+    #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:add_entity")]
+    AddEntity(AddEntityPacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "clientbound",
+        id = "minecraft:remove_entities"
+    )]
+    RemoveEntities(RemoveEntitiesPacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "clientbound",
+        id = "minecraft:entity_position_sync"
+    )]
+    EntityPositionSync(EntityPositionSyncPacket),
+
+    #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:rotate_head")]
+    RotateHead(RotateHeadPacket),
+
+    #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:animate")]
+    Animate(AnimatePacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "serverbound",
+        id = "minecraft:move_player_pos"
+    )]
+    MovePlayerPos(MovePlayerPosPacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "serverbound",
+        id = "minecraft:move_player_pos_rot"
+    )]
+    MovePlayerPosRot(MovePlayerPosRotPacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "serverbound",
+        id = "minecraft:move_player_rot"
+    )]
+    MovePlayerRot(MovePlayerRotPacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "serverbound",
+        id = "minecraft:move_player_status_only"
+    )]
+    MovePlayerStatusOnly(MovePlayerStatusOnlyPacket),
+
+    #[protocol_id(state = "play", bound = "serverbound", id = "minecraft:swing")]
+    Swing(SwingPacket),
 }
 
 impl PacketHandler for PacketRegistry {
@@ -224,6 +304,11 @@ impl PacketHandler for PacketRegistry {
                 packet.handle(client_state, server_state)
             }
             Self::ServerboundKeepAlive(packet) => packet.handle(client_state, server_state),
+            Self::MovePlayerPos(packet) => packet.handle(client_state, server_state),
+            Self::MovePlayerPosRot(packet) => packet.handle(client_state, server_state),
+            Self::MovePlayerRot(packet) => packet.handle(client_state, server_state),
+            Self::MovePlayerStatusOnly(packet) => packet.handle(client_state, server_state),
+            Self::Swing(packet) => packet.handle(client_state, server_state),
             _ => Ok(Batch::new()),
         }
     }

@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
 use clap::Parser;
-use minecraft_packet::Connection;
+use minecraft_packet::ConnectionReader;
 use yoki::{
     Cli, ServerState,
+    handlers::play::handle_player_disconnect,
     server::{
         PacketHandler, client_state::ClientState, packet_handler::PacketHandlerError,
-        packet_registry::PacketRegistry,
+        packet_registry::PacketRegistry, players::spawn_writer_task,
     },
 };
 use yoki_binutils::ProtocolError;
@@ -38,11 +39,29 @@ async fn handle_connection(
     socket: tokio::net::TcpStream,
     server_state: Arc<ServerState>,
 ) -> Result<(), ProtocolError> {
-    let mut conn = Connection::new(socket);
-    let mut client_state = ClientState::new();
+    let (reader, writer) = minecraft_packet::split(socket);
+    let (sender, receiver) = tokio::sync::mpsc::unbounded_channel();
+    spawn_writer_task(writer, receiver);
 
+    let mut client_state = ClientState::new();
+    client_state.set_sender(sender);
+
+    let result = run_read_loop(reader, &mut client_state, &server_state).await;
+
+    if let Some(entity_id) = client_state.entity_id() {
+        handle_player_disconnect(&server_state, entity_id);
+    }
+
+    result
+}
+
+async fn run_read_loop(
+    mut reader: ConnectionReader,
+    client_state: &mut ClientState,
+    server_state: &ServerState,
+) -> Result<(), ProtocolError> {
     loop {
-        let raw = conn.receive().await?;
+        let raw = reader.receive().await?;
         let packet = match PacketRegistry::decode_serverbound(
             client_state.protocol_version(),
             client_state.serverbound_state(),
@@ -55,7 +74,7 @@ async fn handle_connection(
 
         let should_disconnect = matches!(packet, PacketRegistry::PingRequest(_));
 
-        let batch = match packet.handle(&mut client_state, &server_state) {
+        let batch = match packet.handle(client_state, server_state) {
             Ok(batch) => batch,
             Err(PacketHandlerError::InvalidState(message, should_warn)) => {
                 if should_warn {
@@ -68,7 +87,7 @@ async fn handle_connection(
             }
         };
 
-        batch.execute(&mut conn, &mut client_state).await?;
+        batch.execute(client_state).await?;
 
         if should_disconnect {
             break;

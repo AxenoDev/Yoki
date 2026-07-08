@@ -3,11 +3,13 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use crate::configuration::{ConfigError, Configuration};
 use crate::registry::RegistryStore;
+use crate::server::players::PlayerRegistry;
 
 #[derive(Debug)]
 pub struct ServerState {
     pub config: Configuration,
     registry_store: RegistryStore,
+    players: PlayerRegistry,
     online_players: AtomicUsize,
     allow_unsupported_versions: bool,
     reply_to_status: bool,
@@ -30,11 +32,16 @@ impl ServerState {
             accept_transfers: false,
             config,
             registry_store,
+            players: PlayerRegistry::default(),
         }
     }
 
     pub fn registry_store(&self) -> &RegistryStore {
         &self.registry_store
+    }
+
+    pub fn players(&self) -> &PlayerRegistry {
+        &self.players
     }
 
     pub fn config(&self) -> &Configuration {

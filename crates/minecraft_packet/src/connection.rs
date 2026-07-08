@@ -1,18 +1,23 @@
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
+use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 use yoki_binutils::{BinaryWriter, ProtocolError, WriteBytes, data_types::VarInt};
 
 use crate::packet::{OutgoingPacket, RawPacket};
 
-pub struct Connection {
-    stream: TcpStream,
+pub fn split(stream: TcpStream) -> (ConnectionReader, ConnectionWriter) {
+    let (read_half, write_half) = stream.into_split();
+    (
+        ConnectionReader { stream: read_half },
+        ConnectionWriter { stream: write_half },
+    )
 }
 
-impl Connection {
-    pub fn new(stream: TcpStream) -> Self {
-        Self { stream }
-    }
+pub struct ConnectionReader {
+    stream: OwnedReadHalf,
+}
 
+impl ConnectionReader {
     pub async fn receive(&mut self) -> Result<RawPacket, ProtocolError> {
         let length = self.read_varint().await? as usize;
         let mut data = vec![0u8; length];
@@ -26,31 +31,6 @@ impl Connection {
             id: packet_id,
             payload,
         })
-    }
-
-    pub async fn send<P: OutgoingPacket>(
-        &mut self,
-        id: i32,
-        packet: &P,
-    ) -> Result<(), ProtocolError> {
-        let payload = packet.encode_with_id(id)?;
-        self.send_framed(&payload).await
-    }
-
-    pub async fn send_raw(&mut self, packet: &RawPacket) -> Result<(), ProtocolError> {
-        let mut body = BinaryWriter::new();
-        VarInt::from(packet.id).write(&mut body)?;
-        body.extend(&packet.payload);
-        self.send_framed(&body.into_inner()).await
-    }
-
-    async fn send_framed(&mut self, payload: &[u8]) -> Result<(), ProtocolError> {
-        let mut frame = BinaryWriter::new();
-        VarInt::from(payload.len() as i32).write(&mut frame)?;
-        frame.extend(payload);
-
-        self.stream.write_all(&frame.into_inner()).await?;
-        Ok(())
     }
 
     async fn read_varint(&mut self) -> Result<i32, ProtocolError> {
@@ -75,6 +55,37 @@ impl Connection {
         }
 
         Ok(result)
+    }
+}
+
+pub struct ConnectionWriter {
+    stream: OwnedWriteHalf,
+}
+
+impl ConnectionWriter {
+    pub async fn send<P: OutgoingPacket>(
+        &mut self,
+        id: i32,
+        packet: &P,
+    ) -> Result<(), ProtocolError> {
+        let payload = packet.encode_with_id(id)?;
+        self.send_framed(&payload).await
+    }
+
+    pub async fn send_raw(&mut self, packet: &RawPacket) -> Result<(), ProtocolError> {
+        let mut body = BinaryWriter::new();
+        VarInt::from(packet.id).write(&mut body)?;
+        body.extend(&packet.payload);
+        self.send_framed(&body.into_inner()).await
+    }
+
+    async fn send_framed(&mut self, payload: &[u8]) -> Result<(), ProtocolError> {
+        let mut frame = BinaryWriter::new();
+        VarInt::from(payload.len() as i32).write(&mut frame)?;
+        frame.extend(payload);
+
+        self.stream.write_all(&frame.into_inner()).await?;
+        Ok(())
     }
 }
 

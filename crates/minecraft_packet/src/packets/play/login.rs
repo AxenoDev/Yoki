@@ -31,16 +31,16 @@ pub struct LoginPacket {
 
 impl Default for LoginPacket {
     fn default() -> Self {
-        Self::for_protocol_version(ProtocolVersion::V26_2)
+        Self::for_protocol_version(ProtocolVersion::V26_2, 1)
     }
 }
 
 impl LoginPacket {
-    pub fn for_protocol_version(version: ProtocolVersion) -> Self {
+    pub fn for_protocol_version(version: ProtocolVersion, entity_id: i32) -> Self {
         let online_mode = matches!(version.data(), ProtocolVersion::V26_2).then_some(false);
 
         Self {
-            entity_id: 1,
+            entity_id,
             is_hardcore: false,
             dimension_names: vec![
                 Identifier::minecraft("overworld").expect("valid identifier"),

@@ -3,6 +3,8 @@ use protocol_version::protocol_version::ProtocolVersion;
 use uuid::Uuid;
 
 use crate::server::game_profile::GameProfile;
+use crate::server::packet_registry::PacketRegistry;
+use crate::server::players::{Outgoing, OutgoingSender};
 
 pub struct ClientState {
     clientbound_state: State,
@@ -10,6 +12,8 @@ pub struct ClientState {
     protocol_version: ProtocolVersion,
     kick_message: Option<String>,
     game_profile: Option<GameProfile>,
+    sender: Option<OutgoingSender>,
+    entity_id: Option<i32>,
 }
 
 impl Default for ClientState {
@@ -20,6 +24,8 @@ impl Default for ClientState {
             protocol_version: ProtocolVersion::Any,
             kick_message: None,
             game_profile: None,
+            sender: None,
+            entity_id: None,
         }
     }
 }
@@ -60,8 +66,33 @@ impl ClientState {
         self.protocol_version
     }
 
-    pub const fn set_protocol_version(&mut self, new_protocol_version: ProtocolVersion) {
+    pub fn set_protocol_version(&mut self, new_protocol_version: ProtocolVersion) {
         self.protocol_version = new_protocol_version;
+        if let Some(sender) = &self.sender {
+            let _ = sender.send(Outgoing::SetVersion(new_protocol_version));
+        }
+    }
+
+    pub fn set_sender(&mut self, sender: OutgoingSender) {
+        self.sender = Some(sender);
+    }
+
+    pub fn sender(&self) -> Option<OutgoingSender> {
+        self.sender.clone()
+    }
+
+    pub fn queue_outgoing(&self, packet: Box<PacketRegistry>) -> bool {
+        self.sender
+            .as_ref()
+            .is_some_and(|sender| sender.send(Outgoing::Packet(packet)).is_ok())
+    }
+
+    pub const fn entity_id(&self) -> Option<i32> {
+        self.entity_id
+    }
+
+    pub const fn set_entity_id(&mut self, entity_id: i32) {
+        self.entity_id = Some(entity_id);
     }
 
     pub fn set_game_profile(&mut self, game_profile: GameProfile) {

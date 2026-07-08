@@ -1,5 +1,5 @@
-mod configuration;
+pub mod configuration;
 mod handshake;
 mod login;
-mod play;
+pub mod play;
 mod status;
