@@ -145,4 +145,17 @@ impl PlayerRegistry {
             .cloned()
             .collect()
     }
+
+    pub fn get_size(&self) -> usize {
+        self.players.read().expect("players lock poisoned").len()
+    }
+
+    pub fn all(&self) -> Vec<Arc<ConnectedPlayer>> {
+        self.players
+            .read()
+            .expect("players lock poisoned")
+            .values()
+            .cloned()
+            .collect()
+    }
 }

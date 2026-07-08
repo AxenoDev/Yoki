@@ -29,9 +29,15 @@ impl ServerStatus {
         self
     }
 
-    pub fn with_players(mut self, online: u32, max: u32) -> Self {
+    pub fn with_players(
+        mut self,
+        online: u32,
+        max: u32,
+        sample: Option<Vec<PlayerSample>>,
+    ) -> Self {
         self.players.online = online;
         self.players.max = max;
+        self.players.sample = sample;
         self
     }
 

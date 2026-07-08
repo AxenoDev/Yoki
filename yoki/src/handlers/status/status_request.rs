@@ -1,4 +1,6 @@
-use minecraft_packet::packets::{ServerStatus, StatusRequestPacket, StatusResponsePacket};
+use minecraft_packet::packets::{
+    PlayerSample, ServerStatus, StatusRequestPacket, StatusResponsePacket,
+};
 
 use crate::{
     ServerState,
@@ -14,10 +16,19 @@ impl PacketHandler for StatusRequestPacket {
         server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
         let mut batch = Batch::new();
+
+        let sample: Vec<PlayerSample> = server_state
+            .players()
+            .all()
+            .iter()
+            .map(|player| PlayerSample::new(player.profile().username(), player.profile().uuid()))
+            .collect();
+
         let status = ServerStatus::yoki_default()
             .with_players(
-                server_state.online_players() as u32,
+                server_state.players().get_size() as u32,
                 server_state.max_players() as u32,
+                Some(sample),
             )
             .with_description(server_state.motd());
         let response = StatusResponsePacket::from_status(&status);
