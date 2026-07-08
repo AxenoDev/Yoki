@@ -1,8 +1,11 @@
 mod cli;
 mod configuration;
 mod handlers;
+pub mod registry;
 pub mod server;
 pub mod server_state;
+
+pub mod game_data;
 
 pub use cli::Cli;
 pub use configuration::{Config, ConfigError};

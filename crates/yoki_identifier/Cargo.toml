@@ -1,0 +1,13 @@
+[package]
+name = "yoki_identifier"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { workspace = true, optional = true }
+thiserror = { workspace = true }
+yoki_binutils = { path = "../yoki_binutils" }
+
+[features]
+default = ["serde"]
+serde = ["dep:serde"]

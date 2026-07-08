@@ -157,7 +157,6 @@ impl From<String> for TextComponent {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PacketOut)]
-#[packet(id = 0x00)]
 pub struct StatusResponsePacket {
     pub json: String,
 }

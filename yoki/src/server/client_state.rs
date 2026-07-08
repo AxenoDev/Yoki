@@ -1,4 +1,4 @@
-use minecraft_protocol::{Direction, State};
+use minecraft_protocol::{DirectionBound, State};
 use protocol_version::protocol_version::ProtocolVersion;
 use uuid::Uuid;
 
@@ -49,10 +49,10 @@ impl ClientState {
         self.serverbound_state
     }
 
-    pub const fn set_state(&mut self, direction: Direction, new_state: State) {
+    pub const fn set_state(&mut self, direction: DirectionBound, new_state: State) {
         match direction {
-            Direction::Clientbound => self.clientbound_state = new_state,
-            Direction::Serverbound => self.serverbound_state = new_state,
+            DirectionBound::Clientbound => self.clientbound_state = new_state,
+            DirectionBound::Serverbound => self.serverbound_state = new_state,
         }
     }
 

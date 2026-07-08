@@ -5,7 +5,7 @@ use std::task::{Context, Poll};
 
 use futures::Stream;
 use minecraft_packet::Connection;
-use minecraft_protocol::{Direction, State};
+use minecraft_protocol::{DirectionBound, State};
 use yoki_binutils::ProtocolError;
 
 use super::client_state::ClientState;
@@ -18,7 +18,7 @@ enum Producer {
     SyncClosure(Box<dyn FnOnce() -> PacketRegistry + Send + 'static>),
     AsyncClosure(AsyncClosure),
     Iterator(Box<dyn Iterator<Item = PacketRegistry> + Send + 'static>),
-    StateChange(Direction, State),
+    StateChange(DirectionBound, State),
 }
 
 pub struct Batch {
@@ -38,13 +38,17 @@ impl Batch {
     }
 
     pub fn queue_clientbound_state_change(&mut self, new_state: State) {
-        self.producers
-            .push_back(Producer::StateChange(Direction::Clientbound, new_state));
+        self.producers.push_back(Producer::StateChange(
+            DirectionBound::Clientbound,
+            new_state,
+        ));
     }
 
     pub fn queue_serverbound_state_change(&mut self, new_state: State) {
-        self.producers
-            .push_back(Producer::StateChange(Direction::Serverbound, new_state));
+        self.producers.push_back(Producer::StateChange(
+            DirectionBound::Serverbound,
+            new_state,
+        ));
     }
 
     pub fn queue<F>(&mut self, f: F)
@@ -96,7 +100,7 @@ impl Batch {
         while let Some(item) = stream.next().await {
             match item {
                 BatchItem::Packet(packet) => {
-                    let raw = packet.encode_clientbound()?;
+                    let raw = packet.encode_clientbound(client_state.protocol_version())?;
                     conn.send_raw(&raw).await?;
                 }
                 BatchItem::StateChange(direction, new_state) => {
@@ -127,8 +131,8 @@ pub struct BatchStream {
 }
 
 pub enum BatchItem {
-    Packet(PacketRegistry),
-    StateChange(Direction, State),
+    Packet(Box<PacketRegistry>),
+    StateChange(DirectionBound, State),
 }
 
 impl Stream for BatchStream {
@@ -142,19 +146,19 @@ impl Stream for BatchStream {
                 Current::Future(fut) => match fut.as_mut().poll(cx) {
                     Poll::Ready(item) => {
                         this.current = Current::Idle;
-                        return Poll::Ready(Some(BatchItem::Packet(item)));
+                        return Poll::Ready(Some(BatchItem::Packet(Box::new(item))));
                     }
                     Poll::Pending => return Poll::Pending,
                 },
                 Current::Iterator(iter) => {
                     if let Some(item) = iter.next() {
-                        return Poll::Ready(Some(BatchItem::Packet(item)));
+                        return Poll::Ready(Some(BatchItem::Packet(Box::new(item))));
                     }
                     this.current = Current::Idle;
                 }
                 Current::Idle => match this.producers.pop_front() {
                     Some(Producer::SyncClosure(f)) => {
-                        return Poll::Ready(Some(BatchItem::Packet(f())));
+                        return Poll::Ready(Some(BatchItem::Packet(Box::new(f()))));
                     }
                     Some(Producer::StateChange(direction, new_state)) => {
                         return Poll::Ready(Some(BatchItem::StateChange(direction, new_state)));

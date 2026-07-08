@@ -1,4 +1,4 @@
-use yoki_binutils::{ProtocolError, reader::PacketReader};
+use yoki_binutils::{BinaryReader, ProtocolError, ProtocolRead, data_types::VarInt};
 
 use crate::packet::{IncomingPacket, PacketDirection, PacketMeta};
 
@@ -10,16 +10,15 @@ pub struct LoginPluginResponsePacket {
 }
 
 impl PacketMeta for LoginPluginResponsePacket {
-    const ID: i32 = 0x02;
     const DIRECTION: PacketDirection = PacketDirection::In;
 }
 
 impl IncomingPacket for LoginPluginResponsePacket {
-    fn decode_payload(reader: &mut PacketReader<'_>) -> Result<Self, ProtocolError> {
-        let message_id = reader.read_varint()?;
-        let is_present = reader.read_bool()?;
+    fn decode_payload(reader: &mut BinaryReader<'_>) -> Result<Self, ProtocolError> {
+        let message_id = VarInt::read_from(reader)?.inner();
+        let is_present = bool::read_from(reader)?;
         let data = if is_present {
-            reader.read_remaining_bytes()
+            reader.take_remaining_bytes()
         } else {
             Vec::new()
         };

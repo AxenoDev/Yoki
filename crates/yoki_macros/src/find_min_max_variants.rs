@@ -1,7 +1,6 @@
 use crate::parsed_variant::ParsedVariant;
 use syn::{Error, Ident, Result};
 
-/// Finds the oldest and latest "real" (non-negative) variants.
 pub fn find_min_max_variants<'a>(
     variants: &'a [ParsedVariant<'a>],
     enum_span: proc_macro2::Span,

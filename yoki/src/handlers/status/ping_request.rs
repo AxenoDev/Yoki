@@ -1,5 +1,4 @@
-use minecraft_packet::packets::PingRequestPacket;
-use minecraft_packet::packets::PingResponsePacket;
+use minecraft_packet::packets::{PingRequestPacket, PongResponsePacket};
 
 use crate::{
     ServerState,
@@ -15,7 +14,7 @@ impl PacketHandler for PingRequestPacket {
         _server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
         let mut batch = Batch::new();
-        batch.queue_packet(PacketRegistry::PingResponse(PingResponsePacket::from(
+        batch.queue_packet(PacketRegistry::PongResponse(PongResponsePacket::from(
             *self,
         )));
         Ok(batch)

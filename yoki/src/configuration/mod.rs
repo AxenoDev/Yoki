@@ -17,6 +17,8 @@ pub enum ConfigError {
     Io(#[from] std::io::Error),
     #[error("Failed to parse config file: {0}")]
     Parse(#[from] toml::de::Error),
+    #[error("Failed to load registry data: {0}")]
+    Registry(String),
 }
 
 #[derive(Debug, Default)]

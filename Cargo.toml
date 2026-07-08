@@ -2,9 +2,11 @@
 members = [
     "yoki",
     "crates/minecraft_packet",
-    "crates/yoki_macros",
     "crates/minecraft_protocol",
-    "crates/yoki_binutils", "crates/protocol_version",
+    "crates/yoki_macros",
+    "crates/yoki_binutils",
+    "crates/yoki_identifier",
+    "crates/protocol_version",
 ]
 resolver = "2"
 
@@ -16,6 +18,8 @@ quote = "1"
 syn = { version = "2", features = ["full"] }
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
-toml  = "1"
+serde_json = { version = "1" }
+toml = "1"
 clap = { version = "4", features = ["derive"] }
 futures = "0.3"
+strum_macros = { version = "0.28" }

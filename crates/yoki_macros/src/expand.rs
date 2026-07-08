@@ -2,7 +2,7 @@ use crate::find_min_max_variants::find_min_max_variants;
 use crate::parsed_variant::ParsedVariant;
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, Data, DeriveInput, Error};
+use syn::{Data, DeriveInput, Error, parse_macro_input};
 
 pub fn expand_protocol_version_derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -17,7 +17,6 @@ pub fn expand_protocol_version_derive(input: TokenStream) -> TokenStream {
         }
     };
 
-    // Parse all variants into our structured format.
     let parsed_variants: Vec<ParsedVariant> = match data_enum
         .variants
         .iter()
@@ -28,7 +27,6 @@ pub fn expand_protocol_version_derive(input: TokenStream) -> TokenStream {
         Err(err) => return err.to_compile_error().into(),
     };
 
-    // Find the min and max "real" versions.
     let (min_variant_ident, max_variant_ident) =
         match find_min_max_variants(&parsed_variants, enum_ident.span()) {
             Ok(idents) => idents,
@@ -55,7 +53,6 @@ pub fn expand_protocol_version_derive(input: TokenStream) -> TokenStream {
     .unwrap()
     .discriminant_value;
 
-    // Generate the code for each impl block by iterating over `parsed_variants`.
     let display_arms = parsed_variants.iter().map(|v| {
         let variant_ident = v.ident;
         quote! { #enum_ident::#variant_ident => f.write_str(stringify!(#variant_ident)) }
@@ -102,7 +99,6 @@ pub fn expand_protocol_version_derive(input: TokenStream) -> TokenStream {
         quote! { #enum_ident::#variant_ident }
     });
 
-    // Assemble the final TokenStream.
     let expanded = quote! {
         impl std::fmt::Display for #enum_ident {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -150,37 +146,30 @@ pub fn expand_protocol_version_derive(input: TokenStream) -> TokenStream {
                 })
             }
 
-            /// Returns the protocol version number by casting the enum to an i32.
             pub fn version_number(&self) -> i32 {
                 *self as i32
             }
 
-            /// Returns the human-readable version string (e.g., "1.18.2").
             pub fn humanize(&self) -> &'static str {
                 match self { #(#humanize_arms),* }
             }
 
-            /// Returns the protocol version this version reports as.
             pub fn packets(&self) -> ProtocolVersion {
                 match self { #(#packets_arms),* }
             }
 
-            /// Returns the protocol version this version gets its data from.
             pub fn data(&self) -> ProtocolVersion {
                 match self { #(#data_arms),* }
             }
 
-            /// Returns the known packs for this protocol version.
             pub fn known_packs(&self) -> &'static [&'static str] {
                 match self { #(#known_packs_arms),* }
             }
 
-            /// Returns the latest real protocol version (ignores special values like `Any`).
             pub fn latest() -> Self {
                 #enum_ident::#max_variant_ident
             }
 
-            /// Returns the oldest real protocol version (ignores special values like `Any`).
             pub fn oldest() -> Self {
                 #enum_ident::#min_variant_ident
             }

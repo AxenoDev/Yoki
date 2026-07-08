@@ -1,61 +1,6 @@
 use proc_macro2::TokenStream as TokenStream2;
 use syn::spanned::Spanned;
-use syn::{Field, Ident, LitInt, LitStr, Type};
-
-pub fn parse_packet_id(input: &syn::DeriveInput) -> syn::Result<i32> {
-    for attr in &input.attrs {
-        if !attr.path().is_ident("packet") {
-            continue;
-        }
-
-        let mut id = None;
-
-        attr.parse_nested_meta(|meta| {
-            if meta.path.is_ident("id") {
-                let value: LitInt = meta.value()?.parse()?;
-                id = Some(lit_int_to_i32(&value)?);
-            }
-            Ok(())
-        })?;
-
-        if let Some(id) = id {
-            return Ok(id);
-        }
-    }
-
-    Err(syn::Error::new(
-        input.ident.span(),
-        "missing #[packet(id = ...)] attribute",
-    ))
-}
-
-pub fn has_packet_flag(input: &syn::DeriveInput, flag: &str) -> bool {
-    input.attrs.iter().any(|attr| {
-        if !attr.path().is_ident("packet") {
-            return false;
-        }
-
-        let mut found = false;
-        let _ = attr.parse_nested_meta(|meta| {
-            if meta.path.is_ident(flag) {
-                found = true;
-            }
-            Ok(())
-        });
-        found
-    })
-}
-
-pub fn lit_int_to_i32(value: &LitInt) -> syn::Result<i32> {
-    let s = value.to_string();
-    if let Some(hex) = s.strip_prefix("0x").or_else(|| s.strip_prefix("0X")) {
-        i32::from_str_radix(hex, 16)
-            .map_err(|_| syn::Error::new(value.span(), "invalid hex packet id"))
-    } else {
-        s.parse()
-            .map_err(|_| syn::Error::new(value.span(), "invalid packet id"))
-    }
-}
+use syn::{Field, Ident, LitStr, Type};
 
 pub fn field_has_protocol_flag(field: &Field, flag: &str) -> bool {
     field.attrs.iter().any(|attr| {
@@ -76,10 +21,10 @@ pub fn field_has_protocol_flag(field: &Field, flag: &str) -> bool {
 
 pub fn field_present_if(field: &Field) -> Option<Ident> {
     for attr in &field.attrs {
-        if attr.path().is_ident("present_if") {
-            if let Ok(value) = attr.parse_args::<LitStr>() {
-                return Some(Ident::new(&value.value(), value.span()));
-            }
+        if attr.path().is_ident("present_if")
+            && let Ok(value) = attr.parse_args::<LitStr>()
+        {
+            return Some(Ident::new(&value.value(), value.span()));
         }
     }
 
@@ -118,17 +63,17 @@ pub fn generate_field_decode(field: &Field) -> TokenStream2 {
     }
 
     if field_has_protocol_flag(field, "remaining") {
-        return quote::quote! { #name: reader.read_remaining_bytes(), };
+        return quote::quote! { #name: reader.take_remaining_bytes(), };
     }
 
     if field_has_protocol_flag(field, "remaining_option") {
-        return quote::quote! { #name: Some(reader.read_remaining_bytes()), };
+        return quote::quote! { #name: Some(reader.take_remaining_bytes()), };
     }
 
     if let Some(present_field) = field_present_if(field) {
         return quote::quote! {
             #name: if #present_field {
-                reader.read_remaining_bytes()
+                reader.take_remaining_bytes()
             } else {
                 ::std::vec::Vec::new()
             },
@@ -173,7 +118,7 @@ pub fn generate_field_encode(field: &Field) -> TokenStream2 {
     }
 
     if is_vec_u8(ty) {
-        return quote::quote! { writer.write_byte_array(&self.#name); };
+        return quote::quote! { writer.write_byte_array(&self.#name)?; };
     }
 
     quote::quote! { yoki_binutils::ProtocolWrite::write_to(&self.#name, writer)?; }
@@ -192,7 +137,7 @@ pub fn parse_protocol_id_attr(attrs: &[syn::Attribute]) -> syn::Result<ProtocolI
 
     let mut state = None;
     let mut bound = None;
-    let mut id = None;
+    let mut name = None;
 
     attr.parse_nested_meta(|meta| {
         if meta.path.is_ident("state") {
@@ -200,7 +145,7 @@ pub fn parse_protocol_id_attr(attrs: &[syn::Attribute]) -> syn::Result<ProtocolI
         } else if meta.path.is_ident("bound") {
             bound = Some(meta.value()?.parse::<LitStr>()?);
         } else if meta.path.is_ident("id") {
-            id = Some(lit_int_to_i32(&meta.value()?.parse::<LitInt>()?)?);
+            name = Some(meta.value()?.parse::<LitStr>()?);
         }
         Ok(())
     })?;
@@ -208,14 +153,14 @@ pub fn parse_protocol_id_attr(attrs: &[syn::Attribute]) -> syn::Result<ProtocolI
     Ok(ProtocolIdAttr {
         state: state.ok_or_else(|| syn::Error::new(attr.span(), "missing state in protocol_id"))?,
         bound: bound.ok_or_else(|| syn::Error::new(attr.span(), "missing bound in protocol_id"))?,
-        id: id.ok_or_else(|| syn::Error::new(attr.span(), "missing id in protocol_id"))?,
+        name: name.ok_or_else(|| syn::Error::new(attr.span(), "missing name in protocol_id"))?,
     })
 }
 
 pub struct ProtocolIdAttr {
     pub state: LitStr,
     pub bound: LitStr,
-    pub id: i32,
+    pub name: LitStr,
 }
 
 pub fn state_str_to_ident(state: &str) -> syn::Result<Ident> {

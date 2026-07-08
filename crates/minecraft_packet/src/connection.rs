@@ -1,7 +1,6 @@
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
-use yoki_binutils::ProtocolError;
-use yoki_binutils::writer::PacketWriter;
+use yoki_binutils::{BinaryWriter, ProtocolError, WriteBytes, data_types::VarInt};
 
 use crate::packet::{OutgoingPacket, RawPacket};
 
@@ -29,21 +28,25 @@ impl Connection {
         })
     }
 
-    pub async fn send<P: OutgoingPacket>(&mut self, packet: &P) -> Result<(), ProtocolError> {
-        let payload = packet.encode()?;
+    pub async fn send<P: OutgoingPacket>(
+        &mut self,
+        id: i32,
+        packet: &P,
+    ) -> Result<(), ProtocolError> {
+        let payload = packet.encode_with_id(id)?;
         self.send_framed(&payload).await
     }
 
     pub async fn send_raw(&mut self, packet: &RawPacket) -> Result<(), ProtocolError> {
-        let mut body = PacketWriter::new();
-        body.write_varint(packet.id);
+        let mut body = BinaryWriter::new();
+        VarInt::from(packet.id).write(&mut body)?;
         body.extend(&packet.payload);
         self.send_framed(&body.into_inner()).await
     }
 
     async fn send_framed(&mut self, payload: &[u8]) -> Result<(), ProtocolError> {
-        let mut frame = PacketWriter::new();
-        frame.write_varint(payload.len() as i32);
+        let mut frame = BinaryWriter::new();
+        VarInt::from(payload.len() as i32).write(&mut frame)?;
         frame.extend(payload);
 
         self.stream.write_all(&frame.into_inner()).await?;

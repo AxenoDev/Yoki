@@ -7,3 +7,4 @@ edition = "2024"
 yoki_macros = { path = "../yoki_macros" }
 tokio = { workspace = true }
 uuid = { workspace = true }
+strum_macros = { workspace = true }

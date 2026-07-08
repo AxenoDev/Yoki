@@ -1,7 +1,6 @@
 use syn::parse::{Parse, ParseStream};
 use syn::{Error, Ident, LitStr, Result, Token};
 
-/// Parses the `#[pvn(packets = "...", data = "...", known_packs = [...])]` attribute.
 pub struct PvnAttribute {
     pub packets: Option<Ident>,
     pub data: Option<Ident>,
