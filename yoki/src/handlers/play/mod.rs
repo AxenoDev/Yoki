@@ -22,6 +22,7 @@ use minecraft_packet::packets::play::{
     synchronize_player_position::SynchronizePlayerPositionPacket,
 };
 use protocol_version::protocol_version::ProtocolVersion;
+use std::sync::Arc;
 
 use crate::{
     ServerState,
@@ -116,8 +117,12 @@ pub fn queue_player_spawns(
     batch: &mut Batch,
     server_state: &ServerState,
     new_player: &ConnectedPlayer,
-    others: &[std::sync::Arc<ConnectedPlayer>],
+    others: &[Arc<ConnectedPlayer>],
 ) {
+    batch.queue_packet(PacketRegistry::PlayerInfoUpdate(
+        PlayerInfoUpdatePacket::add_players(vec![info_entry(new_player)]),
+    ));
+
     if others.is_empty() {
         return;
     }
