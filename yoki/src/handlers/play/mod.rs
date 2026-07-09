@@ -1,3 +1,5 @@
+mod messages;
+
 use minecraft_packet::packets::play::level_chunk_with_light::{
     FLAT_SURFACE_Y, LevelChunkWithLightPacket,
 };

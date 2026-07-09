@@ -280,6 +280,9 @@ pub enum PacketRegistry {
 
     #[protocol_id(state = "play", bound = "serverbound", id = "minecraft:swing")]
     Swing(SwingPacket),
+
+    #[protocol_id(state = "play", bound = "serverbound", id = "minecraft:chat")]
+    ChatMessage(ChatMessagePacket),
 }
 
 impl PacketHandler for PacketRegistry {
@@ -309,6 +312,7 @@ impl PacketHandler for PacketRegistry {
             Self::MovePlayerRot(packet) => packet.handle(client_state, server_state),
             Self::MovePlayerStatusOnly(packet) => packet.handle(client_state, server_state),
             Self::Swing(packet) => packet.handle(client_state, server_state),
+            Self::ChatMessage(packet) => packet.handle(client_state, server_state),
             _ => Ok(Batch::new()),
         }
     }
