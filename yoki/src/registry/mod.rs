@@ -517,17 +517,32 @@ fn read_json<T: for<'de> Deserialize<'de>>(path: &Path) -> Result<T, RegistryErr
 }
 
 fn find_data_generated_dir() -> Result<PathBuf, RegistryError> {
-    let mut current = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    loop {
-        let candidate = current.join("data/generated");
-        if candidate.is_dir() {
-            return Ok(candidate);
-        }
-        current = current
-            .parent()
-            .ok_or(RegistryError::MissingGeneratedData)?
-            .to_path_buf();
+    let mut roots: Vec<PathBuf> = Vec::new();
+    if let Ok(cwd) = std::env::current_dir() {
+        roots.push(cwd);
     }
+    if let Ok(exe) = std::env::current_exe()
+        && let Some(exe_dir) = exe.parent()
+    {
+        roots.push(exe_dir.to_path_buf());
+    }
+    roots.push(PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+
+    for root in roots {
+        let mut current = root;
+        loop {
+            let candidate = current.join("data/generated");
+            if candidate.is_dir() {
+                return Ok(candidate);
+            }
+            match current.parent() {
+                Some(parent) => current = parent.to_path_buf(),
+                None => break,
+            }
+        }
+    }
+
+    Err(RegistryError::MissingGeneratedData)
 }
 
 fn data_folder(version: ProtocolVersion) -> String {

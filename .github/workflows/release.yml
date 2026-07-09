@@ -143,9 +143,13 @@ jobs:
           VERSION: ${{ needs.prepare.outputs.version }}
           TARGET: ${{ matrix.target }}
         run: |
-          BINARY="target/${TARGET}/release/yoki"
-          ARCHIVE="yoki-${VERSION}-${TARGET}.tar.gz"
-          tar -czf "${ARCHIVE}" -C "target/${TARGET}/release" yoki
+          STAGE="yoki-${VERSION}-${TARGET}"
+          mkdir -p "${STAGE}/data"
+          cp "target/${TARGET}/release/yoki" "${STAGE}/yoki"
+          # Registry data required at runtime (loaded next to the binary).
+          cp -r data/generated "${STAGE}/data/generated"
+          ARCHIVE="${STAGE}.tar.gz"
+          tar -czf "${ARCHIVE}" -C "${STAGE}" .
           echo "ARCHIVE=${ARCHIVE}" >> "$GITHUB_ENV"
 
       - name: Package (Windows)
@@ -155,8 +159,12 @@ jobs:
           VERSION: ${{ needs.prepare.outputs.version }}
           TARGET: ${{ matrix.target }}
         run: |
-          $archive = "yoki-${env:VERSION}-${env:TARGET}.zip"
-          Compress-Archive -Path "target/${env:TARGET}/release/yoki.exe" -DestinationPath $archive
+          $stage = "yoki-${env:VERSION}-${env:TARGET}"
+          New-Item -ItemType Directory -Force -Path "$stage/data" | Out-Null
+          Copy-Item "target/${env:TARGET}/release/yoki.exe" "$stage/yoki.exe"
+          Copy-Item -Recurse "data/generated" "$stage/data/generated"
+          $archive = "$stage.zip"
+          Compress-Archive -Path "$stage/*" -DestinationPath $archive
           "ARCHIVE=$archive" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Upload artifact
