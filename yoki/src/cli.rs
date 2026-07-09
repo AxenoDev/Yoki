@@ -9,11 +9,11 @@ use clap::Parser;
 )]
 pub struct Cli {
     #[arg(
-        short = 'c',
-        long = "config-dir",
-        value_name = "CONFIG_DIR",
-        default_value = "config",
-        help = "Directory containing configuration files."
+        short = 's',
+        long = "server-dir",
+        value_name = "SERVER_DIR",
+        default_value = "server",
+        help = "Directory containing server files."
     )]
-    pub config_dir: PathBuf,
+    pub server_dir: PathBuf,
 }
