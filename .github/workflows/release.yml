@@ -76,7 +76,7 @@ jobs:
             echo
 
             ITEMS="$(gh api "repos/${{ github.repository }}/issues?milestone=${MILESTONE_NUMBER}&state=all&per_page=100" \
-              --jq '.[] | "- \(.title) (#\(.number))")'
+              --jq '.[] | "- \(.title) (#\(.number))"')"
 
             if [[ -n "$ITEMS" ]]; then
               echo "$ITEMS"
