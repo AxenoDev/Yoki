@@ -1,27 +1,64 @@
+use clap::builder::styling::AnsiColor;
 use clap::Parser;
-use clap::builder::styling::{AnsiColor, Color};
 use minecraft_packet::ConnectionReader;
-use std::fmt;
+use std::path::Path;
 use std::sync::Arc;
+use std::{fmt, fs, io};
 use tracing::{Event, Level, Subscriber};
 use tracing_subscriber::fmt::format::Writer;
 use tracing_subscriber::fmt::{FmtContext, FormatEvent, FormatFields};
 use tracing_subscriber::registry::LookupSpan;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 use yoki::{
-    Cli, ServerState,
-    handlers::play::handle_player_disconnect,
-    server::{
-        PacketHandler, client_state::ClientState, packet_handler::PacketHandlerError,
-        packet_registry::PacketRegistry, players::spawn_writer_task,
+    handlers::play::handle_player_disconnect, server::{
+        client_state::ClientState, packet_handler::PacketHandlerError, packet_registry::PacketRegistry,
+        players::spawn_writer_task, PacketHandler,
     },
+    Cli,
+    ServerState,
 };
 use yoki_binutils::ProtocolError;
 
+fn rotate_latest_log() -> io::Result<()> {
+    let logs = Path::new("logs");
+    fs::create_dir_all(logs)?;
+
+    let latest = logs.join("latest.log");
+    if latest.exists() {
+        let date = chrono::Local::now().format("%Y-%m-%d");
+        let mut index = 1;
+        loop {
+            let archive = logs.join(format!("{date}-{index}.log"));
+            if !archive.exists() {
+                fs::rename(&latest, &archive)?;
+                break;
+            }
+            index += 1;
+        }
+    }
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt()
-        .with_target(false)
-        .event_format(YokiFormat)
+    rotate_latest_log().expect("Failed to rotate log");
+
+    let file = fs::File::create("logs/latest.log").expect("Failed to create log file");
+    let (file_writer, _guard) = tracing_appender::non_blocking(file);
+
+    tracing_subscriber::registry()
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::from("info")))
+        .with(
+            tracing_subscriber::fmt::layer()
+                .event_format(YokiFormat)
+                .with_ansi(true),
+        )
+        .with(
+            tracing_subscriber::fmt::layer()
+                .event_format(YokiFormat)
+                .with_writer(file_writer)
+                .with_ansi(false),
+        )
         .init();
     let cli = Cli::parse();
     let server_state = Arc::new(ServerState::load(&cli.config_dir).expect("failed to load config"));
