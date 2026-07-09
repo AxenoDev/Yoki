@@ -159,6 +159,7 @@ pub fn handle_player_disconnect(server_state: &ServerState, entity_id: i32) {
     };
 
     let uuid = player.profile().uuid();
+    server_state.broadcast(format!("§e{} left the game!", player.profile().username()));
     for other in server_state.players().others(entity_id) {
         other.send_packet(PacketRegistry::RemoveEntities(RemoveEntitiesPacket::new([
             entity_id,
