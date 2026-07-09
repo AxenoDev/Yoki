@@ -3,6 +3,7 @@ pub mod client_state;
 pub mod game_profile;
 pub mod packet_handler;
 pub mod packet_registry;
+pub mod performance;
 pub mod players;
 
 pub use batch::{Batch, BatchItem, BatchStream};

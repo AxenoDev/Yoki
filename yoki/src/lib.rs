@@ -1,4 +1,5 @@
 mod cli;
+pub mod commands;
 mod configuration;
 pub mod handlers;
 pub mod registry;

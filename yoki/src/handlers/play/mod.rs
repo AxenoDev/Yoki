@@ -27,6 +27,7 @@ use minecraft_packet::packets::play::{
 use protocol_version::protocol_version::ProtocolVersion;
 use std::sync::Arc;
 
+use crate::commands::brigadier::build_commands_packet;
 use crate::{
     batch::Batch,
     server::packet_registry::PacketRegistry,
@@ -65,6 +66,11 @@ pub fn queue_join_play_packets(
     batch.queue_packet(PacketRegistry::Login(LoginPacket::for_protocol_version(
         protocol_version,
         entity_id,
+    )));
+    batch.queue_packet(PacketRegistry::Commands(build_commands_packet(
+        server_state.commands(),
+        server_state.registry_store(),
+        protocol_version,
     )));
     batch.queue_packet(PacketRegistry::PlayerAbilities(
         PlayerAbilitiesPacket::default(),

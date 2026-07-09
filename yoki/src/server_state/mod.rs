@@ -1,5 +1,8 @@
 use std::path::Path;
 
+use std::sync::Arc;
+
+use crate::commands::{CommandRegistry, impls::register_all};
 use crate::configuration::{ConfigError, Configuration};
 use crate::registry::RegistryStore;
 use crate::server::players::PlayerRegistry;
@@ -9,6 +12,7 @@ pub struct ServerState {
     pub config: Configuration,
     registry_store: RegistryStore,
     players: PlayerRegistry,
+    commands: CommandRegistry,
     allow_unsupported_versions: bool,
     reply_to_status: bool,
     accept_transfers: bool,
@@ -30,11 +34,16 @@ impl ServerState {
             config,
             registry_store,
             players: PlayerRegistry::default(),
+            commands: register_all(),
         }
     }
 
     pub fn registry_store(&self) -> &RegistryStore {
         &self.registry_store
+    }
+
+    pub fn commands(&self) -> &CommandRegistry {
+        &self.commands
     }
 
     pub fn players(&self) -> &PlayerRegistry {

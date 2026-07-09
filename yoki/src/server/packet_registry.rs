@@ -1,5 +1,6 @@
 use minecraft_packet::packets::play::chat_command::ChatCommandPacket;
 use minecraft_packet::packets::play::chat_message::ChatMessagePacket;
+use minecraft_packet::packets::play::commands::CommandsPacket;
 use minecraft_packet::packets::play::level_chunk_with_light::LevelChunkWithLightPacket;
 use minecraft_packet::packets::play::system_chat::SystemChatMessagePacket;
 use minecraft_packet::packets::play::{
@@ -22,6 +23,8 @@ use minecraft_packet::packets::play::{
     synchronize_player_position::SynchronizePlayerPositionPacket,
 };
 use minecraft_packet::packets::{
+    HandshakePacket, PingRequestPacket, PongResponsePacket, StatusRequestPacket,
+    StatusResponsePacket,
     configuration::{
         acknowledge_finish_configuration::AcknowledgeFinishConfigurationPacket,
         client_information::ClientInformationPacket,
@@ -31,23 +34,21 @@ use minecraft_packet::packets::{
         registry_data::RegistryDataPacket,
         update_enabled_features::UpdateEnabledFeaturesPacket,
         update_tags::UpdateTagsPacket,
-    }, login::{
+    },
+    login::{
         cookie_response_login::CookieResponseLoginPacket,
         encryption_response::EncryptionResponsePacket, login_acknowledged::LoginAcknowledgedPacket,
         login_plugin_response::LoginPluginResponsePacket, login_start::LoginStartPacket,
         login_success::LoginSuccessPacket,
-    }, play::login::LoginPacket, HandshakePacket,
-    PingRequestPacket,
-    PongResponsePacket,
-    StatusRequestPacket,
-    StatusResponsePacket,
+    },
+    play::login::LoginPacket,
 };
 use yoki_macros::PacketReport;
 
 use crate::{
-    batch::Batch,
-    server::{packet_handler::PacketHandlerError, PacketHandler},
     ServerState,
+    batch::Batch,
+    server::{PacketHandler, packet_handler::PacketHandlerError},
 };
 
 #[derive(Debug, PacketReport)]
@@ -292,6 +293,9 @@ pub enum PacketRegistry {
 
     #[protocol_id(state = "play", bound = "serverbound", id = "minecraft:chat_command")]
     ChatCommand(ChatCommandPacket),
+
+    #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:commands")]
+    Commands(CommandsPacket),
 }
 
 impl PacketHandler for PacketRegistry {
