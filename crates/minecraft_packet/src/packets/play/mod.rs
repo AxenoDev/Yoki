@@ -1,5 +1,6 @@
 pub mod add_entity;
 pub mod animate;
+pub mod chat_command;
 pub mod chat_message;
 pub mod data;
 pub mod entity_position_sync;
