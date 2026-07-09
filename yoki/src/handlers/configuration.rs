@@ -112,6 +112,14 @@ impl PacketHandler for AcknowledgeFinishConfigurationPacket {
         let others = server_state.players().register(Arc::clone(&player));
         queue_player_spawns(&mut batch, server_state, &player, &others);
 
+        tracing::info!(
+            "{} joined the game (entity {}, {}, {} online)",
+            player.profile().username(),
+            entity_id,
+            protocol_version.humanize(),
+            others.len() + 1
+        );
+
         server_state.broadcast(format!(
             "§e{} joined the game!",
             client_state.get_username()

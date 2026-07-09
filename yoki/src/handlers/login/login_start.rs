@@ -17,6 +17,7 @@ impl PacketHandler for LoginStartPacket {
     ) -> Result<Batch, PacketHandlerError> {
         let mut batch = Batch::new();
         let protocol_version = client_state.protocol_version().protocol_number();
+        tracing::info!("login start: {} (uuid {})", self.name, self.uuid);
         client_state.set_game_profile(GameProfile::new(&self.name, self.uuid));
         batch.queue_packet(PacketRegistry::LoginSuccess(LoginSuccessPacket::offline(
             self.uuid,

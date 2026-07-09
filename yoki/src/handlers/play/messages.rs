@@ -11,6 +11,7 @@ impl PacketHandler for ChatMessagePacket {
         server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
         let line = format!("<{}> {}", client_state.get_username(), self.get_message());
+        tracing::info!("{line}");
         server_state.broadcast(line);
 
         Ok(Batch::new())

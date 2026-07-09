@@ -23,6 +23,11 @@ impl PacketHandler for HandshakePacket {
             PacketHandlerError::invalid_state(format!("Unsupported next state {}", err.0))
         })?;
 
+        tracing::debug!(
+            "handshake: protocol {} -> {next_state:?}",
+            self.protocol_version.inner()
+        );
+
         batch.queue_both_state_change(next_state);
 
         match next_state {

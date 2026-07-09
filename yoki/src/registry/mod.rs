@@ -88,6 +88,10 @@ impl RegistryStore {
             return Err(RegistryError::NoVersions(generated_dir));
         }
 
+        let mut loaded: Vec<_> = versions.keys().map(|v| v.humanize()).collect();
+        loaded.sort();
+        tracing::info!("loaded registry data for {}", loaded.join(", "));
+
         Ok(Self { versions })
     }
 

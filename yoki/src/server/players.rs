@@ -31,7 +31,7 @@ pub fn spawn_writer_task(mut writer: ConnectionWriter, mut receiver: UnboundedRe
                     let raw = match packet.encode_clientbound(protocol_version) {
                         Ok(raw) => raw,
                         Err(err) => {
-                            eprintln!("failed to encode outgoing packet: {err}");
+                            tracing::error!("failed to encode outgoing packet: {err}");
                             break;
                         }
                     };
@@ -145,6 +145,11 @@ impl PlayerRegistry {
     }
 
     pub fn register(&self, player: Arc<ConnectedPlayer>) -> Vec<Arc<ConnectedPlayer>> {
+        tracing::debug!(
+            "registering player {} (entity {})",
+            player.profile().username(),
+            player.entity_id()
+        );
         let mut players = self.players.write().expect("players lock poisoned");
         let others: Vec<_> = players.values().cloned().collect();
         players.insert(player.entity_id(), player);

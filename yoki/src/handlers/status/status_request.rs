@@ -17,6 +17,12 @@ impl PacketHandler for StatusRequestPacket {
     ) -> Result<Batch, PacketHandlerError> {
         let mut batch = Batch::new();
 
+        tracing::debug!(
+            "status request ({}/{} online)",
+            server_state.players().get_size(),
+            server_state.max_players()
+        );
+
         let sample: Vec<PlayerSample> = server_state
             .players()
             .all()

@@ -1,5 +1,5 @@
-use clap::builder::styling::AnsiColor;
 use clap::Parser;
+use clap::builder::styling::AnsiColor;
 use minecraft_packet::ConnectionReader;
 use std::path::Path;
 use std::sync::Arc;
@@ -8,14 +8,14 @@ use tracing::{Event, Level, Subscriber};
 use tracing_subscriber::fmt::format::Writer;
 use tracing_subscriber::fmt::{FmtContext, FormatEvent, FormatFields};
 use tracing_subscriber::registry::LookupSpan;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 use yoki::{
-    handlers::play::handle_player_disconnect, server::{
-        client_state::ClientState, packet_handler::PacketHandlerError, packet_registry::PacketRegistry,
-        players::spawn_writer_task, PacketHandler,
+    Cli, ServerState,
+    handlers::play::handle_player_disconnect,
+    server::{
+        PacketHandler, client_state::ClientState, packet_handler::PacketHandlerError,
+        packet_registry::PacketRegistry, players::spawn_writer_task,
     },
-    Cli,
-    ServerState,
 };
 use yoki_binutils::ProtocolError;
 
@@ -74,9 +74,11 @@ async fn main() {
         let server_state = Arc::clone(&server_state);
 
         tokio::spawn(async move {
+            tracing::debug!("connection opened from {client_addr}");
             if let Err(err) = handle_connection(socket, server_state).await {
-                eprintln!("{client_addr}: {err}");
+                tracing::warn!("connection error from {client_addr}: {err}");
             }
+            tracing::debug!("connection closed for {client_addr}");
         });
     }
 }
@@ -114,7 +116,10 @@ async fn run_read_loop(
             &raw,
         ) {
             Ok(packet) => packet,
-            Err(ProtocolError::UnknownPacket { .. }) => continue,
+            Err(ProtocolError::UnknownPacket { id, conn }) => {
+                tracing::debug!("ignoring unknown packet 0x{id:02X} (state {conn:?})");
+                continue;
+            }
             Err(err) => return Err(err),
         };
 
@@ -124,7 +129,9 @@ async fn run_read_loop(
             Ok(batch) => batch,
             Err(PacketHandlerError::InvalidState(message, should_warn)) => {
                 if should_warn {
-                    eprintln!("{message}");
+                    tracing::warn!("{message}");
+                } else {
+                    tracing::debug!("closing connection: {message}");
                 }
                 break;
             }

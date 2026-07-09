@@ -158,6 +158,12 @@ pub fn handle_player_disconnect(server_state: &ServerState, entity_id: i32) {
         return;
     };
 
+    tracing::info!(
+        "{} left the game ({} online)",
+        player.profile().username(),
+        server_state.players().get_size()
+    );
+
     let uuid = player.profile().uuid();
     server_state.broadcast(format!("§e{} left the game!", player.profile().username()));
     for other in server_state.players().others(entity_id) {
@@ -184,6 +190,14 @@ fn broadcast_movement(
     };
 
     let position = player.update_position(update);
+    tracing::trace!(
+        "entity {entity_id} moved to ({:.2}, {:.2}, {:.2}) yaw {:.1} pitch {:.1}",
+        position.x,
+        position.y,
+        position.z,
+        position.yaw,
+        position.pitch
+    );
     for other in server_state.players().others(entity_id) {
         other.send_packet(PacketRegistry::EntityPositionSync(
             EntityPositionSyncPacket::new(
@@ -297,6 +311,7 @@ impl PacketHandler for SwingPacket {
             } else {
                 ANIMATION_SWING_MAIN_ARM
             };
+            tracing::trace!("entity {entity_id} swings (hand {})", self.hand);
             for other in server_state.players().others(entity_id) {
                 other.send_packet(PacketRegistry::Animate(AnimatePacket::new(
                     entity_id, animation,
@@ -313,6 +328,7 @@ impl PacketHandler for ServerboundKeepAlivePacket {
         _client_state: &mut ClientState,
         _server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
+        tracing::trace!("keep alive echo (id {})", self.id);
         Ok(Batch::new())
     }
 }
