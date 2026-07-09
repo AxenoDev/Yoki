@@ -1,0 +1,49 @@
+{
+  "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PANEL",
+  "meta": {
+    "version": "PLCN_v3",
+    "update_url": null
+  },
+  "exported_at": "2026-07-09T20:29:08+00:00",
+  "name": "Yoki",
+  "author": "contact@axeno.me",
+  "uuid": "d4a50d69-20cb-4d3d-9616-fa73329acc40",
+  "description": "A high-performance Minecraft server written from scratch in Rust..",
+  "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAOdEVYdFNvZnR3YXJlAEZpZ21hnrGWYwAACndJREFUeAHtnU1sXFcVx89942+7xUatRF1j7LJp2kWTGonEIdRRK8qCTaOyAwkW7Q7VZtEFICWREIsuyKTs0gWpSFagZkErNYgq7kdshEgwC5psoE4p8YKoNo09H8+Zd7n/N33mZTye93Xvm/tu7k+KM+N547Hf/51zzz3n3PsYpeT2v5bnSiX2BOfeHDG2nzgfJWKjZJEA3yByVok88Y+teN6dd+/78pFFSgFLcjD/6K+jlb7avHj0khUzX4RQq5xo0XHp5OD0odUE74sGwm71Vk8wxl4iiw6cjSt0pMCbN5fmGafj1mL1AhbNuHNicOLrr0cctzebnyyVrdXqDWe8PDI+u7DX620Fhkuu9tcucE5zZCkAbMV1+4+OTR/YaH3FaXd4ta9+yYpbJPj+XmGQ7V7ZJTDcMhdvIEuhEHHSnIiXTu36fvjJ5ifLP2CMfk2WwsI5XxiZmC0Hz3cErq4tTwm3DNc8RZYCwzdcd3A6GI93XLTn0XErrgmw0d7+6vGdZ/gC6xUCf0QWY3DdgTFYsW/BsF6yGEVfX83PX/gCi8BqjiyGwefxlaEq5Dh0iSzGIapQRx0h7lNkMZJSqfcJhxGzSQ1DQa3eETXGKbIYCtsvgixviiyGwkcdk+u8tfeuUDeov9+dz90NG3XIULav/ZO2zr9FvFKjPMHn3j7zO9IFYwWuCSvilWquVtz4z7pW4gIjBcaJrr9/1X/sXv2Q8qJy4Y/k3Vr3Hwf/dxsjBYabDD8OP1cFPEVwUemEkQK3BjnuFbVWDI9RufDOru/pgHEC48RuX7+7MFYTlqUy2Aq7Zt0wTuB27hjB1p0bN0kFe7lmOwYrYq85qKrxsdU164ZRArdzzwF1BeNw5Q19XXOAUQJ3ipbhpmVG07iYqhcvd3xdB4wSOGrOu31dnsAIrPLOkqXhnrHg5uty2s7CiRTdMUbgOzfWIi0qzjFx0KeYEI0xAm9f+0fkMbKmS7UY1uvd2iAdMEfg6/Hcb9asFoYB3SPnMAZZcLwAKmtWq1Yg9wyMEBhBT1zRspQQ8V7VeW3ZmCHwx8nGVWSf0sxT63/5sBBTozBGCIzoOAmwxNunzyUSq13FqBPOA3p0Qpkh8MfJBPbfI6Lp9Z++Gmvs9js1xAVRpOAqoIck00wCNMc454ExKj04Rj1fGSc2NECq4FtVSgME++8vXhO/30PU/40nqXffV/3HAUGzAFKSRXPNAdIFdq/8va0rw4krTY5T/8xj4kQ+IlXwRkbLgou/c+OtnedwrxA0i6hsaJB0QLrAA9+codoflnYFMc2TuLZj3f1HZmjw2cN3WUxaZCcVZPw8Z1idx0qC9DEYV+4XfvKC75o7AaE3fvaqcJFnMlVeEDDpCIYnHVASZOGPg8hx3DAKAOs/fsWvzqTB29JzbETcoQPKomiIfN+Lz8c+vvLGO8Kif6VNHTULJfG3qwwqk6B0mtQ38zj1PvpI7OMxdUFUm0RkXcY6XVE+D+6b2ZfoeExdkiQhdIlWw3gZI3CZ5CDw45QUWPLtM7+NfbwuWaMABH7Vix+QDigXGNF0mvEISf3q25djHatLQBOm+vaSFvFELqnKnsl0c92t82/GyjOXNJmShIEVJ40nVJCLwM6D6QWAyFGUJrMnS1QQpEK7OR7nIrCX4SqOs3gMqU9dgciflX9D3SIXgRsZU39R7a5px/m88AsWMeMJ2SgXGGNo1jJb/b3oJreeSf0CrTAowHTDVSsXWMZ0AdWiqJOTdL6dN3nvNhCgVGCZDeJRbbF5TpVQAUtTBWukaEzIivRyYZit878nWURZcFBjVu0Gh449Q0PPPe0/DqLkuFOhPHYaaEWZBcMduVeuUZ70zTxGqumZ/NLOYxRUxn75shD8mVjv9Uwag7uxbtbLIanQblXD0LGnY4mMcTjvvi4lAsN6Zf8hUQV0fGbc1Q1ZQAoV89pWtwyR0aESRd5uWonAKqw3qmqUp8eAyKhdY0+ssNDD3/tOZPBVy3lVovQgS4X1gk4nTtVndgLuFm1H+Ne7b9qveyOS9z1Nh/x5kJnLK/smXWAVlhRlFd3eJwNtR0nWHn9WPkejP/9RZN+aDKS6aFWW1Gn87Yb1ZiWoNCVdkZEGqQKrsqRO5Ubdd7nZC1yU6CpN22wYF2kCy8g570UnFz1wZIaKDJoNP114RVndWKLAajYaA53SkJiefPHUy7mMZ6qAYaB1ePPcm9IzcdIElrmDTRhMj6LmwEkzSrpSu3jZXxAn05qlCawqi5QkqQ9rjrOqQmdgzZuvydtzWp6LVlQp6X10OtnxYn4JkQeOPElFRWZOXZrAqqo4acpycNkjL343UdO9LiAbFiflGRel5UIZZGlsRxOAqthANhhWRl54XnqGS5rAqmqxWcZTNN3jxhw6gxnC4LOz/nJaJT+fJKFK4CzLMHULtnCO4JGaHSHjfnyhOictTWD8wq6C3d1w0ejYMYmLZ+BbwvK+1lyaE1yIzZ0Bdq9Z7tZ6YWkCq1pdgASKjn3PiNTbida0Un0uSGlRtKp2mSxBkqpkPtKjuqzgj0KawBhXVFy5WMSVFu/Wp6QCXZfKtEOawH7woKD53F+KmXJVQF3RtoMyNo7JC6nlQlXN52m3HpS1AXiRkSowtlBS4abTbD1YxEYAFUgVGG5aZpotDKLprXPRS0lB0n0lk3JP7xc9+O3DyqYJ2Ks5TgcE1hSrFEHXrZvaoWQjtOFj6uqy6IBobVcNgAvH3h6q93QukgUrKTYMCDe9LVyqqjuToFUVe2I2t2lqlhNx0vPaNLRxrwsMRkTZC6vpVCUbIGTQl5w3RYrOla1Ngqu+f/77he6u2AtE9UXZXljp+mCk89Dgnceqv7zBEFEElK/wDyy56A1xrRTFTee2pb8J7a1hkAa19y5s/bDP21uxC23RhVZ502mZsK1/L3PqEhjH4OoQaReldypM0MGpM11tusM8NrxZKSwi6Ihod7Or+gdXtdpPGstAde04CeiqBScFwmMdj05jX9ztG7pFrmNwVpo1Z71qsVkaEvKgUAKDhia3bQ2Qfet42RRKYARlOib6db4beKEErmt650+d58SFEljX7FEQ9euI9muTwgyLiFXXE6nr3V/ENGlJnDGm110tLJLgGw4xpldYapGGSHCsOoyzFbIYCYPA4usiWQyFrTiNBv8bWYzEcfgiwwMbaBnJ6vDDh6b9ebBDpTJZTGMRX3yBa27fabIYhevSSfzvCzw2fWCDMWat2BzOjk0fWsWDnVRlvd5/EhNjshSd1cB6wY7AsGLO//+CpZgIDU8E1gvuKjaMTMyWrasuLiJpVR6ZOPT6Xd9rd2Dl5vIlcSXMkaVAsJXhhw8eaP1u23JhvT7wHN5AlkIgjHHRdfuPtnuNdXpj5eafTnHO58miLXDLQxMHF/Z6vWPBf2j84EKDez8Ul8EqWbSCixmPiJfmO4kLIjs67p84fNZlBPM/SxYtgNVuu4PTwgAjE1SMErC+tjzV59Fx8a45cQlNkSU3fIslVnbdgdOY0sZ9XyKBw1TX/vyU5zXmxEfvF45gipM3xWzBQgqfiylE5CueKOf2MFoZfGj2XUrB/wD7TwQ5CPOMmAAAAABJRU5ErkJggg==",
+  "docker_images": {
+    "Debian": "ghcr.io/pterodactyl/yolks:debian"
+  },
+  "file_denylist": [],
+  "startup_commands": {
+    "Default": "bash start.sh"
+  },
+  "config": {
+    "files": "{}",
+    "startup": "{\n    \"done\": \"Yoki listening on\"\n}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\n# Yoki installation script (Pterodactyl)\nset -e\n\napt update\napt install -y curl tar jq ca-certificates\n\nmkdir -p /mnt/server\ncd /mnt/server\n\nREPO=\"AxenoDev/Yoki\"\nASSET_REGEX=\"x86_64-unknown-linux-musl.tar.gz$\"\n\nif [ -z \"${VERSION}\" ] || [ \"${VERSION}\" = \"latest\" ]; then\n    API_URL=\"https://api.github.com/repos/${REPO}/releases/latest\"\nelse\n    API_URL=\"https://api.github.com/repos/${REPO}/releases/tags/${VERSION}\"\nfi\n\necho \"Resolving download from ${API_URL}\"\nDOWNLOAD_URL=$(curl -sSL \"${API_URL}\" | jq -r \".assets[] | select(.name | test(\\\"${ASSET_REGEX}\\\")) | .browser_download_url\")\n\nif [ -z \"${DOWNLOAD_URL}\" ] || [ \"${DOWNLOAD_URL}\" = \"null\" ]; then\n    echo \"!! Could not find a linux-musl release asset. Aborting.\"\n    exit 1\nfi\n\necho \"Downloading ${DOWNLOAD_URL}\"\ncurl -sSL -o yoki.tar.gz \"${DOWNLOAD_URL}\"\ntar -xzf yoki.tar.gz\nrm -f yoki.tar.gz\nchmod +x yoki\n\n# Boot wrapper: regenerates server.toml with the panel-allocated port on each\n# start, and seeds motd.toml only once so player edits survive restarts.\ncat > start.sh <<'SH'\n#!/bin/bash\nmkdir -p config\n\nexec ./yoki\nSH\nchmod +x start.sh\n\necho \"-----------------------------------------\"\necho \"Yoki installation completed successfully.\"\necho \"-----------------------------------------\"\n",
+      "container": "ghcr.io/pelican-eggs/installers:debian",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": [
+    {
+      "sort": 1,
+      "name": "Yoki Version",
+      "description": "The Yoki release to install. Use 'latest' for the newest release, or a tag such as '0.0.1-alpha-1' to pin a version.",
+      "env_variable": "VERSION",
+      "default_value": "latest",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": [
+        "required",
+        "string",
+        "max:40"
+      ]
+    }
+  ]
+}
