@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::commands::{Command, CommandContext, CommandError};
-use crate::server::performance::{CpuUsage, PerformanceMonitor, TickStats, TICKS_PER_SECOND};
+use crate::server::performance::{CpuUsage, PerformanceMonitor, TICKS_PER_SECOND, TickStats};
 
 pub struct TpsCommand;
 

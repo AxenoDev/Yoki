@@ -1,5 +1,5 @@
-use clap::Parser;
 use clap::builder::styling::AnsiColor;
+use clap::Parser;
 use minecraft_packet::ConnectionReader;
 use std::path::Path;
 use std::sync::Arc;
@@ -8,15 +8,15 @@ use tracing::{Event, Level, Subscriber};
 use tracing_subscriber::fmt::format::Writer;
 use tracing_subscriber::fmt::{FmtContext, FormatEvent, FormatFields};
 use tracing_subscriber::registry::LookupSpan;
-use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
-use yoki::server::performance::spawn_monitor_task;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use yoki::server::tick::spawn_tick_loop;
 use yoki::{
-    Cli, ServerState,
-    handlers::play::handle_player_disconnect,
-    server::{
-        PacketHandler, client_state::ClientState, packet_handler::PacketHandlerError,
-        packet_registry::PacketRegistry, players::spawn_writer_task,
+    handlers::play::handle_player_disconnect, server::{
+        client_state::ClientState, packet_handler::PacketHandlerError, packet_registry::PacketRegistry,
+        players::spawn_writer_task, PacketHandler,
     },
+    Cli,
+    ServerState,
 };
 use yoki_binutils::ProtocolError;
 
@@ -65,7 +65,7 @@ async fn main() {
         .init();
     let server_state =
         Arc::new(ServerState::load(server_dir.join("config")).expect("failed to load config"));
-    spawn_monitor_task(Arc::clone(server_state.performance()));
+    spawn_tick_loop(Arc::clone(&server_state));
     let addr = server_state.bind();
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
@@ -75,6 +75,9 @@ async fn main() {
 
     loop {
         let (socket, client_addr) = listener.accept().await.unwrap();
+        if let Err(err) = socket.set_nodelay(true) {
+            tracing::debug!("failed to set TCP_NODELAY for {client_addr}: {err}");
+        }
         let server_state = Arc::clone(&server_state);
 
         tokio::spawn(async move {

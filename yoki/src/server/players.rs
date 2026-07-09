@@ -1,13 +1,13 @@
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicI32, Ordering};
+use std::sync::atomic::{AtomicI32, AtomicU8, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::server::game_profile::GameProfile;
 use crate::server::packet_registry::PacketRegistry;
-use minecraft_packet::ConnectionWriter;
 use minecraft_packet::packets::play::keep_alive::ClientboundKeepAlivePacket;
 use minecraft_packet::packets::play::system_chat::SystemChatMessagePacket;
+use minecraft_packet::ConnectionWriter;
 use protocol_version::protocol_version::ProtocolVersion;
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 
@@ -74,12 +74,17 @@ pub struct PlayerPosition {
     pub on_ground: bool,
 }
 
+const DIRTY_MOVED: u8 = 0x01;
+const DIRTY_ROTATED: u8 = 0x02;
+
 #[derive(Debug)]
 pub struct ConnectedPlayer {
     entity_id: i32,
     profile: GameProfile,
     protocol_version: ProtocolVersion,
     position: Mutex<PlayerPosition>,
+    /// Movement accumulated since the last tick, drained by the tick loop.
+    dirty: AtomicU8,
     sender: OutgoingSender,
 }
 
@@ -96,6 +101,7 @@ impl ConnectedPlayer {
             profile,
             protocol_version,
             position: Mutex::new(position),
+            dirty: AtomicU8::new(0),
             sender,
         }
     }
@@ -120,6 +126,28 @@ impl ConnectedPlayer {
         let mut position = self.position.lock().expect("position lock poisoned");
         update(&mut position);
         *position
+    }
+
+    pub fn apply_movement(
+        &self,
+        rotated: bool,
+        update: impl FnOnce(&mut PlayerPosition),
+    ) -> PlayerPosition {
+        let position = self.update_position(update);
+        let mut flags = DIRTY_MOVED;
+        if rotated {
+            flags |= DIRTY_ROTATED;
+        }
+        self.dirty.fetch_or(flags, Ordering::Relaxed);
+        position
+    }
+
+    pub fn take_pending_movement(&self) -> Option<(PlayerPosition, bool)> {
+        let flags = self.dirty.swap(0, Ordering::Relaxed);
+        if flags == 0 {
+            return None;
+        }
+        Some((self.position(), flags & DIRTY_ROTATED != 0))
     }
 
     pub fn send_packet(&self, packet: PacketRegistry) {

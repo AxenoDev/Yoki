@@ -5,6 +5,7 @@ pub mod packet_handler;
 pub mod packet_registry;
 pub mod performance;
 pub mod players;
+pub mod tick;
 
 pub use batch::{Batch, BatchItem, BatchStream};
 pub use client_state::ClientState;
