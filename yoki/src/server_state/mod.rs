@@ -68,6 +68,13 @@ impl ServerState {
     pub const fn accept_transfers(&self) -> bool {
         self.accept_transfers
     }
+
+    pub fn broadcast(&self, message: impl Into<String>) {
+        let line = message.into();
+        for player in self.players.all() {
+            player.send(line.clone());
+        }
+    }
 }
 
 impl Default for ServerState {

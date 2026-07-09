@@ -142,10 +142,10 @@ pub fn queue_player_spawns(
     }
 
     for other in others {
-        other.send(PacketRegistry::PlayerInfoUpdate(
+        other.send_packet(PacketRegistry::PlayerInfoUpdate(
             PlayerInfoUpdatePacket::add_players(vec![info_entry(new_player)]),
         ));
-        other.send(spawn_packet(
+        other.send_packet(spawn_packet(
             server_state,
             new_player,
             other.protocol_version(),
@@ -160,10 +160,10 @@ pub fn handle_player_disconnect(server_state: &ServerState, entity_id: i32) {
 
     let uuid = player.profile().uuid();
     for other in server_state.players().others(entity_id) {
-        other.send(PacketRegistry::RemoveEntities(RemoveEntitiesPacket::new([
+        other.send_packet(PacketRegistry::RemoveEntities(RemoveEntitiesPacket::new([
             entity_id,
         ])));
-        other.send(PacketRegistry::PlayerInfoRemove(
+        other.send_packet(PacketRegistry::PlayerInfoRemove(
             PlayerInfoRemovePacket::new(vec![uuid]),
         ));
     }
@@ -184,7 +184,7 @@ fn broadcast_movement(
 
     let position = player.update_position(update);
     for other in server_state.players().others(entity_id) {
-        other.send(PacketRegistry::EntityPositionSync(
+        other.send_packet(PacketRegistry::EntityPositionSync(
             EntityPositionSyncPacket::new(
                 entity_id,
                 position.x,
@@ -196,7 +196,7 @@ fn broadcast_movement(
             ),
         ));
         if rotated {
-            other.send(PacketRegistry::RotateHead(RotateHeadPacket::new(
+            other.send_packet(PacketRegistry::RotateHead(RotateHeadPacket::new(
                 entity_id,
                 position.yaw,
             )));
@@ -297,7 +297,7 @@ impl PacketHandler for SwingPacket {
                 ANIMATION_SWING_MAIN_ARM
             };
             for other in server_state.players().others(entity_id) {
-                other.send(PacketRegistry::Animate(AnimatePacket::new(
+                other.send_packet(PacketRegistry::Animate(AnimatePacket::new(
                     entity_id, animation,
                 )));
             }

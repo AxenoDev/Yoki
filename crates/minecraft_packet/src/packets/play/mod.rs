@@ -16,3 +16,4 @@ pub mod rotate_head;
 pub mod set_chunk_cache_center;
 pub mod swing;
 pub mod synchronize_player_position;
+pub mod system_chat;

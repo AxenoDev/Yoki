@@ -3,13 +3,13 @@ use std::sync::atomic::{AtomicI32, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use minecraft_packet::ConnectionWriter;
-use minecraft_packet::packets::play::keep_alive::ClientboundKeepAlivePacket;
-use protocol_version::protocol_version::ProtocolVersion;
-use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
-
 use crate::server::game_profile::GameProfile;
 use crate::server::packet_registry::PacketRegistry;
+use minecraft_packet::ConnectionWriter;
+use minecraft_packet::packets::play::keep_alive::ClientboundKeepAlivePacket;
+use minecraft_packet::packets::play::system_chat::SystemChatMessagePacket;
+use protocol_version::protocol_version::ProtocolVersion;
+use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 
 const KEEP_ALIVE_INTERVAL: Duration = Duration::from_secs(15);
 
@@ -122,8 +122,14 @@ impl ConnectedPlayer {
         *position
     }
 
-    pub fn send(&self, packet: PacketRegistry) {
+    pub fn send_packet(&self, packet: PacketRegistry) {
         let _ = self.sender.send(Outgoing::Packet(Box::new(packet)));
+    }
+
+    pub fn send(&self, message: impl Into<String>) {
+        self.send_packet(PacketRegistry::SystemChatMessage(
+            SystemChatMessagePacket::text(message),
+        ))
     }
 }
 

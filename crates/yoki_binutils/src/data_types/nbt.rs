@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::binary_error::BinaryError;
 use crate::binary_writer::{BinaryWriter, WriteBytes};
+use crate::{ProtocolError, ProtocolWrite};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum NbtTag {
@@ -222,5 +223,11 @@ pub fn json_to_nbt(value: &serde_json::Value) -> Option<NbtTag> {
 impl WriteBytes for NbtTag {
     fn write(&self, writer: &mut BinaryWriter) -> Result<(), BinaryError> {
         write_network_nbt(writer, self, NbtWriteOptions::network())
+    }
+}
+
+impl ProtocolWrite for NbtTag {
+    fn write_to(&self, writer: &mut BinaryWriter) -> Result<(), ProtocolError> {
+        self.write(writer).map_err(Into::into)
     }
 }

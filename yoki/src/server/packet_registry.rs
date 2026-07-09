@@ -1,4 +1,6 @@
+use minecraft_packet::packets::play::chat_message::ChatMessagePacket;
 use minecraft_packet::packets::play::level_chunk_with_light::LevelChunkWithLightPacket;
+use minecraft_packet::packets::play::system_chat::SystemChatMessagePacket;
 use minecraft_packet::packets::play::{
     add_entity::AddEntityPacket,
     animate::AnimatePacket,
@@ -283,6 +285,9 @@ pub enum PacketRegistry {
 
     #[protocol_id(state = "play", bound = "serverbound", id = "minecraft:chat")]
     ChatMessage(ChatMessagePacket),
+
+    #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:system_chat")]
+    SystemChatMessage(SystemChatMessagePacket),
 }
 
 impl PacketHandler for PacketRegistry {
