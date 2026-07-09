@@ -5,6 +5,7 @@ use std::sync::Arc;
 use crate::commands::{CommandRegistry, impls::register_all};
 use crate::configuration::{ConfigError, Configuration};
 use crate::registry::RegistryStore;
+use crate::server::performance::PerformanceMonitor;
 use crate::server::players::PlayerRegistry;
 
 #[derive(Debug)]
@@ -13,6 +14,7 @@ pub struct ServerState {
     registry_store: RegistryStore,
     players: PlayerRegistry,
     commands: CommandRegistry,
+    performance: Arc<PerformanceMonitor>,
     allow_unsupported_versions: bool,
     reply_to_status: bool,
     accept_transfers: bool,
@@ -35,6 +37,7 @@ impl ServerState {
             registry_store,
             players: PlayerRegistry::default(),
             commands: register_all(),
+            performance: Arc::new(PerformanceMonitor::default()),
         }
     }
 
@@ -44,6 +47,10 @@ impl ServerState {
 
     pub fn commands(&self) -> &CommandRegistry {
         &self.commands
+    }
+
+    pub fn performance(&self) -> &Arc<PerformanceMonitor> {
+        &self.performance
     }
 
     pub fn players(&self) -> &PlayerRegistry {

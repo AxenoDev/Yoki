@@ -8,8 +8,8 @@ use tracing::{Event, Level, Subscriber};
 use tracing_subscriber::fmt::format::Writer;
 use tracing_subscriber::fmt::{FmtContext, FormatEvent, FormatFields};
 use tracing_subscriber::registry::LookupSpan;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
+use yoki::server::performance::spawn_monitor_task;
 use yoki::{
     Cli, ServerState,
     handlers::play::handle_player_disconnect,
@@ -65,6 +65,7 @@ async fn main() {
         .init();
     let server_state =
         Arc::new(ServerState::load(server_dir.join("config")).expect("failed to load config"));
+    spawn_monitor_task(Arc::clone(server_state.performance()));
     let addr = server_state.bind();
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
