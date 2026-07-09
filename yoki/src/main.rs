@@ -1,7 +1,12 @@
-use std::sync::Arc;
-
 use clap::Parser;
+use clap::builder::styling::{AnsiColor, Color};
 use minecraft_packet::ConnectionReader;
+use std::fmt;
+use std::sync::Arc;
+use tracing::{Event, Level, Subscriber};
+use tracing_subscriber::fmt::format::Writer;
+use tracing_subscriber::fmt::{FmtContext, FormatEvent, FormatFields};
+use tracing_subscriber::registry::LookupSpan;
 use yoki::{
     Cli, ServerState,
     handlers::play::handle_player_disconnect,
@@ -14,6 +19,10 @@ use yoki_binutils::ProtocolError;
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt()
+        .with_target(false)
+        .event_format(YokiFormat)
+        .init();
     let cli = Cli::parse();
     let server_state = Arc::new(ServerState::load(&cli.config_dir).expect("failed to load config"));
     let addr = server_state.bind();
@@ -21,7 +30,7 @@ async fn main() {
         .await
         .unwrap_or_else(|_| panic!("failed to bind on {addr}"));
 
-    println!("Yoki listening on {addr}");
+    tracing::info!("Yoki listening on {addr}");
 
     loop {
         let (socket, client_addr) = listener.accept().await.unwrap();
@@ -95,4 +104,42 @@ async fn run_read_loop(
     }
 
     Ok(())
+}
+
+struct YokiFormat;
+
+impl<S, N> FormatEvent<S, N> for YokiFormat
+where
+    S: Subscriber + for<'a> LookupSpan<'a>,
+    N: for<'a> FormatFields<'a> + 'static,
+{
+    fn format_event(
+        &self,
+        ctx: &FmtContext<'_, S, N>,
+        mut writer: Writer<'_>,
+        event: &Event<'_>,
+    ) -> fmt::Result {
+        let time = chrono::Local::now().format("%H:%M:%S");
+        let level = *event.metadata().level();
+
+        if writer.has_ansi_escapes() {
+            let color = match level {
+                Level::ERROR => AnsiColor::Red,
+                Level::WARN => AnsiColor::Yellow,
+                Level::INFO => AnsiColor::Green,
+                Level::DEBUG => AnsiColor::Cyan,
+                Level::TRACE => AnsiColor::White,
+            };
+            let ansi_color = color.on_default();
+            write!(
+                writer,
+                "\x1b[90m[{time}\x1b[0m {ansi_color}{level}\x1b[90m]:\x1b[0m "
+            )?;
+        } else {
+            write!(writer, "[{time} {level}]: ")?;
+        }
+
+        ctx.field_format().format_fields(writer.by_ref(), event)?;
+        writeln!(writer)
+    }
 }
