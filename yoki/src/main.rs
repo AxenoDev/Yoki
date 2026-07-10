@@ -1,5 +1,5 @@
-use clap::builder::styling::AnsiColor;
 use clap::Parser;
+use clap::builder::styling::AnsiColor;
 use minecraft_packet::ConnectionReader;
 use std::path::Path;
 use std::sync::Arc;
@@ -8,15 +8,15 @@ use tracing::{Event, Level, Subscriber};
 use tracing_subscriber::fmt::format::Writer;
 use tracing_subscriber::fmt::{FmtContext, FormatEvent, FormatFields};
 use tracing_subscriber::registry::LookupSpan;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 use yoki::server::tick::spawn_tick_loop;
 use yoki::{
-    handlers::play::handle_player_disconnect, server::{
-        client_state::ClientState, packet_handler::PacketHandlerError, packet_registry::PacketRegistry,
-        players::spawn_writer_task, PacketHandler,
+    Cli, ServerState,
+    handlers::play::handle_player_disconnect,
+    server::{
+        PacketHandler, client_state::ClientState, packet_handler::PacketHandlerError,
+        packet_registry::PacketRegistry, players::spawn_writer_task,
     },
-    Cli,
-    ServerState,
 };
 use yoki_binutils::ProtocolError;
 

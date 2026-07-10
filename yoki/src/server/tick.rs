@@ -1,12 +1,9 @@
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use minecraft_packet::packets::play::entity_position_sync::EntityPositionSyncPacket;
-use minecraft_packet::packets::play::rotate_head::RotateHeadPacket;
 use sysinfo::{ProcessesToUpdate, System};
 use tokio::time::MissedTickBehavior;
 
-use crate::server::packet_registry::PacketRegistry;
 use crate::server::performance::{PerformanceMonitor, SystemSnapshot, TICKS_PER_SECOND};
 use crate::ServerState;
 
@@ -26,7 +23,7 @@ pub fn spawn_tick_loop(server_state: Arc<ServerState>) {
             interval.tick().await;
             let tick_start = Instant::now();
 
-            sync_player_movements(&server_state);
+            // TODO: run the game tick here.
 
             tick_count = tick_count.wrapping_add(1);
             if tick_count.is_multiple_of(SNAPSHOT_EVERY_TICKS) {
@@ -36,49 +33,6 @@ pub fn spawn_tick_loop(server_state: Arc<ServerState>) {
             server_state.performance().record_tick(tick_start.elapsed());
         }
     });
-}
-
-fn sync_player_movements(server_state: &ServerState) {
-    let players = server_state.players().all();
-
-    for player in &players {
-        let Some((position, rotated)) = player.take_pending_movement() else {
-            continue;
-        };
-
-        tracing::trace!(
-            "entity {} moved to ({:.2}, {:.2}, {:.2}) yaw {:.1} pitch {:.1}",
-            player.entity_id(),
-            position.x,
-            position.y,
-            position.z,
-            position.yaw,
-            position.pitch
-        );
-
-        for other in &players {
-            if other.entity_id() == player.entity_id() {
-                continue;
-            }
-            other.send_packet(PacketRegistry::EntityPositionSync(
-                EntityPositionSyncPacket::new(
-                    player.entity_id(),
-                    position.x,
-                    position.y,
-                    position.z,
-                    position.yaw,
-                    position.pitch,
-                    position.on_ground,
-                ),
-            ));
-            if rotated {
-                other.send_packet(PacketRegistry::RotateHead(RotateHeadPacket::new(
-                    player.entity_id(),
-                    position.yaw,
-                )));
-            }
-        }
-    }
 }
 
 fn refresh_snapshot(monitor: &PerformanceMonitor, system: &mut System, pid: Option<sysinfo::Pid>) {

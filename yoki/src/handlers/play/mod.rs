@@ -7,6 +7,7 @@ use minecraft_packet::packets::play::level_chunk_with_light::{
 use minecraft_packet::packets::play::{
     add_entity::AddEntityPacket,
     animate::{AnimatePacket, ANIMATION_SWING_MAIN_ARM, ANIMATION_SWING_OFFHAND},
+    entity_position_sync::EntityPositionSyncPacket,
     game_event::GameEventPacket,
     keep_alive::ServerboundKeepAlivePacket,
     login::LoginPacket,
@@ -18,6 +19,7 @@ use minecraft_packet::packets::play::{
     player_info_remove::PlayerInfoRemovePacket,
     player_info_update::{PlayerInfoEntry, PlayerInfoUpdatePacket},
     remove_entities::RemoveEntitiesPacket,
+    rotate_head::RotateHeadPacket,
     set_chunk_cache_center::SetChunkCacheCenterPacket,
     swing::{SwingPacket, HAND_OFF},
     synchronize_player_position::SynchronizePlayerPositionPacket,
@@ -181,7 +183,7 @@ pub fn handle_player_disconnect(server_state: &ServerState, entity_id: i32) {
     }
 }
 
-fn record_movement(
+fn broadcast_movement(
     client_state: &ClientState,
     server_state: &ServerState,
     update: impl FnOnce(&mut PlayerPosition),
@@ -194,7 +196,26 @@ fn record_movement(
         return;
     };
 
-    player.apply_movement(rotated, update);
+    let position = player.update_position(update);
+    for other in server_state.players().others(entity_id) {
+        other.send_packet(PacketRegistry::EntityPositionSync(
+            EntityPositionSyncPacket::new(
+                entity_id,
+                position.x,
+                position.y,
+                position.z,
+                position.yaw,
+                position.pitch,
+                position.on_ground,
+            ),
+        ));
+        if rotated {
+            other.send_packet(PacketRegistry::RotateHead(RotateHeadPacket::new(
+                entity_id,
+                position.yaw,
+            )));
+        }
+    }
 }
 
 impl PacketHandler for MovePlayerPosPacket {
@@ -203,7 +224,7 @@ impl PacketHandler for MovePlayerPosPacket {
         client_state: &mut ClientState,
         server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
-        record_movement(
+        broadcast_movement(
             client_state,
             server_state,
             |position| {
@@ -224,7 +245,7 @@ impl PacketHandler for MovePlayerPosRotPacket {
         client_state: &mut ClientState,
         server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
-        record_movement(
+        broadcast_movement(
             client_state,
             server_state,
             |position| {
@@ -247,7 +268,7 @@ impl PacketHandler for MovePlayerRotPacket {
         client_state: &mut ClientState,
         server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
-        record_movement(
+        broadcast_movement(
             client_state,
             server_state,
             |position| {
