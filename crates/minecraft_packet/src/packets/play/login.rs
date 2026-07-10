@@ -31,12 +31,12 @@ pub struct LoginPacket {
 
 impl Default for LoginPacket {
     fn default() -> Self {
-        Self::for_protocol_version(ProtocolVersion::V26_2, 1)
+        Self::for_protocol_version(ProtocolVersion::V26_2, 1, 0)
     }
 }
 
 impl LoginPacket {
-    pub fn for_protocol_version(version: ProtocolVersion, entity_id: i32) -> Self {
+    pub fn for_protocol_version(version: ProtocolVersion, entity_id: i32, game_mode: u8) -> Self {
         let online_mode = matches!(version.data(), ProtocolVersion::V26_2).then_some(false);
 
         Self {
@@ -56,7 +56,7 @@ impl LoginPacket {
             dimension_type: VarInt::new(0),
             dimension_name: Identifier::minecraft("overworld").expect("valid identifier"),
             hashed_seed: 0,
-            game_mode: 0,
+            game_mode,
             previous_game_mode: -1,
             is_debug: false,
             is_flat: false,

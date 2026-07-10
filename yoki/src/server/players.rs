@@ -1,13 +1,14 @@
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicI32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::server::game_profile::GameProfile;
+use crate::server::gamemode::GameMode;
 use crate::server::packet_registry::PacketRegistry;
-use minecraft_packet::ConnectionWriter;
 use minecraft_packet::packets::play::keep_alive::ClientboundKeepAlivePacket;
 use minecraft_packet::packets::play::system_chat::SystemChatMessagePacket;
+use minecraft_packet::ConnectionWriter;
 use protocol_version::protocol_version::ProtocolVersion;
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 
@@ -74,12 +75,16 @@ pub struct PlayerPosition {
     pub on_ground: bool,
 }
 
+pub const DEFAULT_GAME_MODE: GameMode = GameMode::Creative;
+
 #[derive(Debug)]
 pub struct ConnectedPlayer {
     entity_id: i32,
     profile: GameProfile,
     protocol_version: ProtocolVersion,
     position: Mutex<PlayerPosition>,
+    game_mode: Mutex<GameMode>,
+    flying: AtomicBool,
     sender: OutgoingSender,
 }
 
@@ -96,8 +101,29 @@ impl ConnectedPlayer {
             profile,
             protocol_version,
             position: Mutex::new(position),
+            game_mode: Mutex::new(DEFAULT_GAME_MODE),
+            flying: AtomicBool::new(false),
             sender,
         }
+    }
+
+    pub fn game_mode(&self) -> GameMode {
+        *self.game_mode.lock().expect("game mode lock poisoned")
+    }
+
+    pub fn set_game_mode(&self, game_mode: GameMode) {
+        *self.game_mode.lock().expect("game mode lock poisoned") = game_mode;
+        if !game_mode.allows_flying() {
+            self.flying.store(false, Ordering::Relaxed);
+        }
+    }
+
+    pub fn is_flying(&self) -> bool {
+        self.flying.load(Ordering::Relaxed)
+    }
+
+    pub fn set_flying(&self, flying: bool) {
+        self.flying.store(flying, Ordering::Relaxed);
     }
 
     pub const fn entity_id(&self) -> i32 {

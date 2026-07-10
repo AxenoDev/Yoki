@@ -9,5 +9,6 @@ pub fn register_all() -> CommandRegistry {
     registry.register(help::HelpCommand);
     registry.register(list::ListCommand);
     registry.register(tps::TpsCommand);
+    registry.register(gamemode::GameModeCommand);
     registry
 }

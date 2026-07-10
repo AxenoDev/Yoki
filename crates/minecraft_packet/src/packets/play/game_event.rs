@@ -14,6 +14,14 @@ impl GameEventPacket {
             value: 0.0,
         }
     }
+
+    /// game mode id: 0 survival, 1 creative, 2 adventure, 3 spectator
+    pub fn change_game_mode(game_mode: u8) -> Self {
+        Self {
+            event: 3,
+            value: f32::from(game_mode),
+        }
+    }
 }
 
 impl PacketMeta for GameEventPacket {

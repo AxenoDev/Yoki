@@ -15,7 +15,7 @@ use minecraft_packet::packets::play::{
         MovePlayerPosPacket, MovePlayerPosRotPacket, MovePlayerRotPacket, MovePlayerStatusOnlyPacket,
         FLAG_ON_GROUND,
     },
-    player_abilities::PlayerAbilitiesPacket,
+    player_abilities::ServerboundPlayerAbilitiesPacket,
     player_info_remove::PlayerInfoRemovePacket,
     player_info_update::{PlayerInfoEntry, PlayerInfoUpdatePacket},
     remove_entities::RemoveEntitiesPacket,
@@ -31,7 +31,7 @@ use crate::commands::brigadier::build_commands_packet;
 use crate::{
     batch::Batch,
     server::packet_registry::PacketRegistry,
-    server::players::{ConnectedPlayer, PlayerPosition},
+    server::players::{ConnectedPlayer, PlayerPosition, DEFAULT_GAME_MODE},
     server::{packet_handler::PacketHandlerError, ClientState, PacketHandler},
     ServerState,
 };
@@ -66,6 +66,7 @@ pub fn queue_join_play_packets(
     batch.queue_packet(PacketRegistry::Login(LoginPacket::for_protocol_version(
         protocol_version,
         entity_id,
+        DEFAULT_GAME_MODE.id(),
     )));
     batch.queue_packet(PacketRegistry::Commands(build_commands_packet(
         server_state.commands(),
@@ -73,7 +74,7 @@ pub fn queue_join_play_packets(
         protocol_version,
     )));
     batch.queue_packet(PacketRegistry::PlayerAbilities(
-        PlayerAbilitiesPacket::default(),
+        DEFAULT_GAME_MODE.abilities(false),
     ));
     batch.queue_packet(PacketRegistry::GameEvent(
         GameEventPacket::start_waiting_for_chunks(),
@@ -328,6 +329,22 @@ impl PacketHandler for ServerboundKeepAlivePacket {
         _server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
         tracing::trace!("keep alive echo (id {})", self.id);
+        Ok(Batch::new())
+    }
+}
+
+impl PacketHandler for ServerboundPlayerAbilitiesPacket {
+    fn handle(
+        &self,
+        client_state: &mut ClientState,
+        server_state: &ServerState,
+    ) -> Result<Batch, PacketHandlerError> {
+        if let Some(entity_id) = client_state.entity_id()
+            && let Some(player) = server_state.players().get(entity_id)
+        {
+            player.set_flying(self.is_flying());
+            tracing::trace!("entity {entity_id} flying: {}", self.is_flying());
+        }
         Ok(Batch::new())
     }
 }

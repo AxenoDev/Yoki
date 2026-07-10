@@ -4,8 +4,8 @@ use std::time::{Duration, Instant};
 use sysinfo::{ProcessesToUpdate, System};
 use tokio::time::MissedTickBehavior;
 
-use crate::server::performance::{PerformanceMonitor, SystemSnapshot, TICKS_PER_SECOND};
 use crate::ServerState;
+use crate::server::performance::{PerformanceMonitor, SystemSnapshot, TICKS_PER_SECOND};
 
 const TICK_INTERVAL: Duration = Duration::from_millis(1000 / TICKS_PER_SECOND as u64);
 const SNAPSHOT_EVERY_TICKS: u32 = TICKS_PER_SECOND;

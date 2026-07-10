@@ -1,6 +1,7 @@
 pub mod batch;
 pub mod client_state;
 pub mod game_profile;
+pub mod gamemode;
 pub mod packet_handler;
 pub mod packet_registry;
 pub mod performance;

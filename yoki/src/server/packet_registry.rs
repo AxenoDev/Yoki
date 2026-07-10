@@ -13,7 +13,7 @@ use minecraft_packet::packets::play::{
         MovePlayerPosPacket, MovePlayerPosRotPacket, MovePlayerRotPacket,
         MovePlayerStatusOnlyPacket,
     },
-    player_abilities::PlayerAbilitiesPacket,
+    player_abilities::{PlayerAbilitiesPacket, ServerboundPlayerAbilitiesPacket},
     player_info_remove::PlayerInfoRemovePacket,
     player_info_update::PlayerInfoUpdatePacket,
     remove_entities::RemoveEntitiesPacket,
@@ -296,6 +296,13 @@ pub enum PacketRegistry {
 
     #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:commands")]
     Commands(CommandsPacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "serverbound",
+        id = "minecraft:player_abilities"
+    )]
+    ServerboundPlayerAbilities(ServerboundPlayerAbilitiesPacket),
 }
 
 impl PacketHandler for PacketRegistry {
@@ -327,6 +334,7 @@ impl PacketHandler for PacketRegistry {
             Self::Swing(packet) => packet.handle(client_state, server_state),
             Self::ChatMessage(packet) => packet.handle(client_state, server_state),
             Self::ChatCommand(packet) => packet.handle(client_state, server_state),
+            Self::ServerboundPlayerAbilities(packet) => packet.handle(client_state, server_state),
             _ => Ok(Batch::new()),
         }
     }
