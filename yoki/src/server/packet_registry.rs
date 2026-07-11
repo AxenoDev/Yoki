@@ -1,8 +1,16 @@
+use minecraft_packet::packets::play::block_changed_ack::BlockChangedAckPacket;
+use minecraft_packet::packets::play::block_update::BlockUpdatePacket;
 use minecraft_packet::packets::play::chat_command::ChatCommandPacket;
 use minecraft_packet::packets::play::chat_message::ChatMessagePacket;
+use minecraft_packet::packets::play::command_suggestion::CommandSuggestionPacket;
+use minecraft_packet::packets::play::command_suggestions::CommandSuggestionsPacket;
 use minecraft_packet::packets::play::commands::CommandsPacket;
 use minecraft_packet::packets::play::level_chunk_with_light::LevelChunkWithLightPacket;
+use minecraft_packet::packets::play::player_action::PlayerActionPacket;
+use minecraft_packet::packets::play::set_carried_item::SetCarriedItemPacket;
+use minecraft_packet::packets::play::set_creative_mode_slot::SetCreativeModeSlotPacket;
 use minecraft_packet::packets::play::system_chat::SystemChatMessagePacket;
+use minecraft_packet::packets::play::use_item_on::UseItemOnPacket;
 use minecraft_packet::packets::play::{
     add_entity::AddEntityPacket,
     animate::AnimatePacket,
@@ -303,6 +311,50 @@ pub enum PacketRegistry {
         id = "minecraft:player_abilities"
     )]
     ServerboundPlayerAbilities(ServerboundPlayerAbilitiesPacket),
+
+    #[protocol_id(state = "play", bound = "clientbound", id = "minecraft:block_update")]
+    BlockUpdate(BlockUpdatePacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "clientbound",
+        id = "minecraft:block_changed_ack"
+    )]
+    BlockChangedAck(BlockChangedAckPacket),
+
+    #[protocol_id(state = "play", bound = "serverbound", id = "minecraft:player_action")]
+    PlayerAction(PlayerActionPacket),
+
+    #[protocol_id(state = "play", bound = "serverbound", id = "minecraft:use_item_on")]
+    UseItemOn(UseItemOnPacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "serverbound",
+        id = "minecraft:set_creative_mode_slot"
+    )]
+    SetCreativeModeSlot(SetCreativeModeSlotPacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "serverbound",
+        id = "minecraft:set_carried_item"
+    )]
+    SetCarriedItem(SetCarriedItemPacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "serverbound",
+        id = "minecraft:command_suggestion"
+    )]
+    CommandSuggestion(CommandSuggestionPacket),
+
+    #[protocol_id(
+        state = "play",
+        bound = "clientbound",
+        id = "minecraft:command_suggestions"
+    )]
+    CommandSuggestions(CommandSuggestionsPacket),
 }
 
 impl PacketHandler for PacketRegistry {
@@ -335,6 +387,11 @@ impl PacketHandler for PacketRegistry {
             Self::ChatMessage(packet) => packet.handle(client_state, server_state),
             Self::ChatCommand(packet) => packet.handle(client_state, server_state),
             Self::ServerboundPlayerAbilities(packet) => packet.handle(client_state, server_state),
+            Self::PlayerAction(packet) => packet.handle(client_state, server_state),
+            Self::UseItemOn(packet) => packet.handle(client_state, server_state),
+            Self::SetCreativeModeSlot(packet) => packet.handle(client_state, server_state),
+            Self::SetCarriedItem(packet) => packet.handle(client_state, server_state),
+            Self::CommandSuggestion(packet) => packet.handle(client_state, server_state),
             _ => Ok(Batch::new()),
         }
     }

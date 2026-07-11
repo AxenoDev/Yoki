@@ -1,3 +1,4 @@
+mod blocks;
 pub mod commands;
 mod messages;
 
@@ -7,6 +8,7 @@ use minecraft_packet::packets::play::level_chunk_with_light::{
 use minecraft_packet::packets::play::{
     add_entity::AddEntityPacket,
     animate::{AnimatePacket, ANIMATION_SWING_MAIN_ARM, ANIMATION_SWING_OFFHAND},
+    block_update::BlockUpdatePacket,
     entity_position_sync::EntityPositionSyncPacket,
     game_event::GameEventPacket,
     keep_alive::ServerboundKeepAlivePacket,
@@ -92,6 +94,12 @@ pub fn queue_join_play_packets(
     batch.queue_packet(PacketRegistry::SynchronizePlayerPosition(
         SynchronizePlayerPositionPacket::spawn(SPAWN_X, SPAWN_Y, SPAWN_Z, 0.0, 0.0),
     ));
+
+    for (pos, state) in server_state.world().modifications() {
+        batch.queue_packet(PacketRegistry::BlockUpdate(BlockUpdatePacket::new(
+            pos, state,
+        )));
+    }
 }
 
 fn info_entry(player: &ConnectedPlayer) -> PlayerInfoEntry {

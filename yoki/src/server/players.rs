@@ -77,6 +77,8 @@ pub struct PlayerPosition {
 
 pub const DEFAULT_GAME_MODE: GameMode = GameMode::Creative;
 
+const HOTBAR_START_SLOT: i16 = 36;
+
 #[derive(Debug)]
 pub struct ConnectedPlayer {
     entity_id: i32,
@@ -85,6 +87,8 @@ pub struct ConnectedPlayer {
     position: Mutex<PlayerPosition>,
     game_mode: Mutex<GameMode>,
     flying: AtomicBool,
+    creative_slots: Mutex<HashMap<i16, i32>>,
+    carried_index: AtomicI32,
     sender: OutgoingSender,
 }
 
@@ -103,8 +107,37 @@ impl ConnectedPlayer {
             position: Mutex::new(position),
             game_mode: Mutex::new(DEFAULT_GAME_MODE),
             flying: AtomicBool::new(false),
+            creative_slots: Mutex::new(HashMap::new()),
+            carried_index: AtomicI32::new(0),
             sender,
         }
+    }
+
+    pub fn set_carried_index(&self, index: i16) {
+        self.carried_index
+            .store(i32::from(index), Ordering::Relaxed);
+    }
+
+    pub fn set_creative_slot(&self, slot: i16, item_id: Option<i32>) {
+        let mut slots = self.creative_slots.lock().expect("slots lock poisoned");
+        match item_id {
+            Some(id) => {
+                slots.insert(slot, id);
+            }
+            None => {
+                slots.remove(&slot);
+            }
+        }
+    }
+
+    pub fn held_item_id(&self) -> Option<i32> {
+        let index = self.carried_index.load(Ordering::Relaxed) as i16;
+        let slot = HOTBAR_START_SLOT + index;
+        self.creative_slots
+            .lock()
+            .expect("slots lock poisoned")
+            .get(&slot)
+            .copied()
     }
 
     pub fn game_mode(&self) -> GameMode {

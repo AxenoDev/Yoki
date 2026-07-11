@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use minecraft_packet::packets::play::commands::ArgumentProperties;
+use minecraft_packet::packets::play::commands::{ArgumentProperties, SuggestionsType};
 
-use crate::ServerState;
 use crate::commands::error::ArgError;
 use crate::server::players::ConnectedPlayer;
+use crate::ServerState;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ArgKind {
@@ -13,8 +13,16 @@ pub enum ArgKind {
     Greedy,
     Int { min: Option<i32>, max: Option<i32> },
     Float { min: Option<f32>, max: Option<f32> },
+    Coordinate,
     Bool,
     Player,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Suggest {
+    None,
+    Players,
+    List(&'static [&'static str]),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -22,6 +30,7 @@ pub struct ArgSpec {
     pub name: &'static str,
     pub kind: ArgKind,
     pub required: bool,
+    pub suggest: Suggest,
 }
 
 impl ArgSpec {
@@ -30,6 +39,7 @@ impl ArgSpec {
             name,
             kind,
             required: true,
+            suggest: Self::default_suggest(kind),
         }
     }
 
@@ -38,6 +48,46 @@ impl ArgSpec {
             name,
             kind,
             required: false,
+            suggest: Self::default_suggest(kind),
+        }
+    }
+
+    pub const fn suggesting(mut self, suggest: Suggest) -> Self {
+        self.suggest = suggest;
+        self
+    }
+
+    const fn default_suggest(kind: ArgKind) -> Suggest {
+        match kind {
+            ArgKind::Player => Suggest::Players,
+            _ => Suggest::None,
+        }
+    }
+
+    pub const fn suggestions_type(&self) -> SuggestionsType {
+        match self.suggest {
+            Suggest::None => SuggestionsType::None,
+            Suggest::Players | Suggest::List(_) => SuggestionsType::AskServer,
+        }
+    }
+
+    pub fn candidates(&self, prefix: &str, server_state: &ServerState) -> Vec<String> {
+        let prefix = prefix.to_ascii_lowercase();
+        let keep = |value: &str| value.to_ascii_lowercase().starts_with(&prefix);
+        match self.suggest {
+            Suggest::None => Vec::new(),
+            Suggest::Players => server_state
+                .players()
+                .all()
+                .iter()
+                .map(|player| player.profile().username().to_string())
+                .filter(|name| keep(name))
+                .collect(),
+            Suggest::List(values) => values
+                .iter()
+                .filter(|value| keep(value))
+                .map(|value| (*value).to_string())
+                .collect(),
         }
     }
 }
@@ -47,6 +97,7 @@ pub enum ArgValue {
     Str(String),
     Int(i32),
     Float(f32),
+    Double(f64),
     Bool(bool),
     Player(Arc<ConnectedPlayer>),
 }
@@ -57,6 +108,7 @@ impl ArgKind {
             Self::Word | Self::Greedy => "brigadier:string",
             Self::Int { .. } => "brigadier:integer",
             Self::Float { .. } => "brigadier:float",
+            Self::Coordinate => "brigadier:double",
             Self::Bool => "brigadier:bool",
             Self::Player => "minecraft:entity",
         }
@@ -73,6 +125,10 @@ impl ArgKind {
             Self::Float { min, max } => ArgumentProperties::Float {
                 min: *min,
                 max: *max,
+            },
+            Self::Coordinate => ArgumentProperties::Float {
+                min: None,
+                max: None,
             },
             Self::Bool => ArgumentProperties::None,
             Self::Player => ArgumentProperties::SinglePlayer,
@@ -121,6 +177,10 @@ impl ArgKind {
                 }
                 Ok(ArgValue::Float(value))
             }
+            Self::Coordinate => token
+                .parse::<f64>()
+                .map(ArgValue::Double)
+                .map_err(|_| invalid(format!("'{token}' is not a coordinate"))),
             Self::Bool => match token {
                 "true" => Ok(ArgValue::Bool(true)),
                 "false" => Ok(ArgValue::Bool(false)),

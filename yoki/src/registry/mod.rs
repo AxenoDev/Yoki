@@ -14,7 +14,7 @@ use protocol_version::protocol_version::ProtocolVersion;
 use serde::Deserialize;
 use serde_json::Value;
 use yoki_binutils::data_types::VarInt;
-use yoki_binutils::data_types::{NbtTag, json_to_nbt};
+use yoki_binutils::data_types::{json_to_nbt, NbtTag};
 use yoki_identifier::Identifier;
 
 #[derive(Debug)]
@@ -29,6 +29,7 @@ struct VersionRegistries {
     block_state_ids: BlockStateIds,
     player_entity_type_id: i32,
     command_argument_type_ids: HashMap<String, i32>,
+    item_names: HashMap<i32, String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -153,6 +154,12 @@ impl RegistryStore {
             .and_then(|data| data.command_argument_type_ids.get(name))
             .copied()
     }
+
+    pub fn item_block_state_id(&self, version: ProtocolVersion, item_id: i32) -> Option<i32> {
+        let data = self.versions.get(&version.data())?;
+        let name = data.item_names.get(&item_id)?;
+        data.block_state_ids.default_state_id(name)
+    }
 }
 
 fn load_version(version_dir: &Path) -> Result<VersionRegistries, RegistryError> {
@@ -243,12 +250,23 @@ fn load_version(version_dir: &Path) -> Result<VersionRegistries, RegistryError> 
             RegistryError::MissingRegistry("minecraft:command_argument_type".to_string())
         })?;
 
+    let item_names = id_lookup
+        .get("minecraft:item")
+        .map(|entries| {
+            entries
+                .iter()
+                .map(|(name, id)| (*id, name.clone()))
+                .collect()
+        })
+        .ok_or_else(|| RegistryError::MissingRegistry("minecraft:item".to_string()))?;
+
     Ok(VersionRegistries {
         all_registry_data,
         tags,
         block_state_ids,
         player_entity_type_id,
         command_argument_type_ids,
+        item_names,
     })
 }
 

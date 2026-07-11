@@ -53,6 +53,13 @@ impl<'a> CommandContext<'a> {
         }
     }
 
+    pub fn get_double(&self, name: &str) -> Option<f64> {
+        match self.args.get(name) {
+            Some(ArgValue::Double(value)) => Some(*value),
+            _ => None,
+        }
+    }
+
     pub fn get_bool(&self, name: &str) -> Option<bool> {
         match self.args.get(name) {
             Some(ArgValue::Bool(value)) => Some(*value),

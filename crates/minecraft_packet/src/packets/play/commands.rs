@@ -1,9 +1,16 @@
 use crate::packet::{OutgoingPacket, PacketDirection, PacketMeta};
-use yoki_binutils::{BinaryWriter, ProtocolError, WriteBytes, data_types::VarInt};
+use yoki_binutils::{data_types::VarInt, BinaryWriter, ProtocolError, WriteBytes};
 
 const NODE_TYPE_LITERAL: u8 = 0x01;
 const NODE_TYPE_ARGUMENT: u8 = 0x02;
 const FLAG_EXECUTABLE: u8 = 0x04;
+const FLAG_HAS_SUGGESTIONS: u8 = 0x10;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SuggestionsType {
+    None,
+    AskServer,
+}
 
 #[derive(Debug, Clone)]
 pub struct CommandNode {
@@ -22,6 +29,7 @@ pub enum NodeKind {
         name: String,
         parser_id: i32,
         properties: ArgumentProperties,
+        suggestions: SuggestionsType,
     },
 }
 
@@ -62,9 +70,20 @@ fn write_node(writer: &mut BinaryWriter, node: &CommandNode) -> Result<(), Proto
         NodeKind::Literal { .. } => NODE_TYPE_LITERAL,
         NodeKind::Argument { .. } => NODE_TYPE_ARGUMENT,
     };
+    let has_suggestions = matches!(
+        &node.kind,
+        NodeKind::Argument {
+            suggestions: SuggestionsType::AskServer,
+            ..
+        }
+    );
+
     let mut flags = node_type;
     if node.executable {
         flags |= FLAG_EXECUTABLE;
+    }
+    if has_suggestions {
+        flags |= FLAG_HAS_SUGGESTIONS;
     }
     writer.write_byte(flags);
 
@@ -83,11 +102,16 @@ fn write_node(writer: &mut BinaryWriter, node: &CommandNode) -> Result<(), Proto
             name,
             parser_id,
             properties,
+            ..
         } => {
             name.write(writer)?;
             VarInt::new(*parser_id).write(writer)?;
             write_properties(writer, properties)?;
         }
+    }
+
+    if has_suggestions {
+        "minecraft:ask_server".to_string().write(writer)?;
     }
 
     Ok(())

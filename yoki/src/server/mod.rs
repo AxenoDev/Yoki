@@ -7,6 +7,7 @@ pub mod packet_registry;
 pub mod performance;
 pub mod players;
 pub mod tick;
+pub mod world;
 
 pub use batch::{Batch, BatchItem, BatchStream};
 pub use client_state::ClientState;

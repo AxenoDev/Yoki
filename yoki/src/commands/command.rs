@@ -11,5 +11,9 @@ pub trait Command: Send + Sync {
         Vec::new()
     }
 
+    fn overloads(&self) -> Vec<Vec<ArgSpec>> {
+        vec![self.args()]
+    }
+
     fn execute(&self, ctx: &mut CommandContext<'_>) -> Result<(), CommandError>;
 }

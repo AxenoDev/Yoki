@@ -7,6 +7,7 @@ use crate::configuration::{ConfigError, Configuration};
 use crate::registry::RegistryStore;
 use crate::server::performance::PerformanceMonitor;
 use crate::server::players::PlayerRegistry;
+use crate::server::world::World;
 
 #[derive(Debug)]
 pub struct ServerState {
@@ -15,6 +16,7 @@ pub struct ServerState {
     players: PlayerRegistry,
     commands: CommandRegistry,
     performance: Arc<PerformanceMonitor>,
+    world: World,
     allow_unsupported_versions: bool,
     reply_to_status: bool,
     accept_transfers: bool,
@@ -38,7 +40,12 @@ impl ServerState {
             players: PlayerRegistry::default(),
             commands: register_all(),
             performance: Arc::new(PerformanceMonitor::default()),
+            world: World::default(),
         }
+    }
+
+    pub fn world(&self) -> &World {
+        &self.world
     }
 
     pub fn registry_store(&self) -> &RegistryStore {

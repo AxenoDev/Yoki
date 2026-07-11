@@ -1,6 +1,6 @@
 use minecraft_packet::packets::play::player_abilities::{
-    PlayerAbilitiesPacket, ABILITY_ALLOW_FLYING, ABILITY_CREATIVE_MODE, ABILITY_FLYING,
-    ABILITY_INVULNERABLE,
+    ABILITY_ALLOW_FLYING, ABILITY_CREATIVE_MODE, ABILITY_FLYING, ABILITY_INVULNERABLE,
+    PlayerAbilitiesPacket,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
