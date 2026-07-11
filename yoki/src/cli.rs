@@ -12,7 +12,7 @@ pub struct Cli {
         short = 's',
         long = "server-dir",
         value_name = "SERVER_DIR",
-        default_value = "",
+        default_value = "./",
         help = "Directory containing server files."
     )]
     pub server_dir: PathBuf,
