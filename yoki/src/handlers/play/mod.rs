@@ -1,21 +1,19 @@
-mod blocks;
 pub mod commands;
 mod messages;
 
 use minecraft_packet::packets::play::level_chunk_with_light::{
-    LevelChunkWithLightPacket, FLAT_SURFACE_Y,
+    FLAT_SURFACE_Y, LevelChunkWithLightPacket,
 };
 use minecraft_packet::packets::play::{
     add_entity::AddEntityPacket,
-    animate::{AnimatePacket, ANIMATION_SWING_MAIN_ARM, ANIMATION_SWING_OFFHAND},
-    block_update::BlockUpdatePacket,
+    animate::{ANIMATION_SWING_MAIN_ARM, ANIMATION_SWING_OFFHAND, AnimatePacket},
     entity_position_sync::EntityPositionSyncPacket,
     game_event::GameEventPacket,
     keep_alive::ServerboundKeepAlivePacket,
     login::LoginPacket,
     move_player::{
-        MovePlayerPosPacket, MovePlayerPosRotPacket, MovePlayerRotPacket, MovePlayerStatusOnlyPacket,
-        FLAG_ON_GROUND,
+        FLAG_ON_GROUND, MovePlayerPosPacket, MovePlayerPosRotPacket, MovePlayerRotPacket,
+        MovePlayerStatusOnlyPacket,
     },
     player_abilities::ServerboundPlayerAbilitiesPacket,
     player_info_remove::PlayerInfoRemovePacket,
@@ -23,7 +21,7 @@ use minecraft_packet::packets::play::{
     remove_entities::RemoveEntitiesPacket,
     rotate_head::RotateHeadPacket,
     set_chunk_cache_center::SetChunkCacheCenterPacket,
-    swing::{SwingPacket, HAND_OFF},
+    swing::{HAND_OFF, SwingPacket},
     synchronize_player_position::SynchronizePlayerPositionPacket,
 };
 use protocol_version::protocol_version::ProtocolVersion;
@@ -31,11 +29,11 @@ use std::sync::Arc;
 
 use crate::commands::brigadier::build_commands_packet;
 use crate::{
+    ServerState,
     batch::Batch,
     server::packet_registry::PacketRegistry,
-    server::players::{ConnectedPlayer, PlayerPosition, DEFAULT_GAME_MODE},
-    server::{packet_handler::PacketHandlerError, ClientState, PacketHandler},
-    ServerState,
+    server::players::{ConnectedPlayer, DEFAULT_GAME_MODE, PlayerPosition},
+    server::{ClientState, PacketHandler, packet_handler::PacketHandlerError},
 };
 
 const SPAWN_X: f64 = 0.5;
@@ -94,12 +92,6 @@ pub fn queue_join_play_packets(
     batch.queue_packet(PacketRegistry::SynchronizePlayerPosition(
         SynchronizePlayerPositionPacket::spawn(SPAWN_X, SPAWN_Y, SPAWN_Z, 0.0, 0.0),
     ));
-
-    for (pos, state) in server_state.world().modifications() {
-        batch.queue_packet(PacketRegistry::BlockUpdate(BlockUpdatePacket::new(
-            pos, state,
-        )));
-    }
 }
 
 fn info_entry(player: &ConnectedPlayer) -> PlayerInfoEntry {

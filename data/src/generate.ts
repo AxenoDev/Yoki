@@ -9,6 +9,7 @@ import { join, dirname } from "node:path";
 import { downloadServerJars } from "./fetch/serverJar.ts";
 
 const SUPPORTED_VERSIONS = [
+    "26.3",
     "26.2",
     "26.1"
 ];

@@ -387,10 +387,6 @@ impl PacketHandler for PacketRegistry {
             Self::ChatMessage(packet) => packet.handle(client_state, server_state),
             Self::ChatCommand(packet) => packet.handle(client_state, server_state),
             Self::ServerboundPlayerAbilities(packet) => packet.handle(client_state, server_state),
-            Self::PlayerAction(packet) => packet.handle(client_state, server_state),
-            Self::UseItemOn(packet) => packet.handle(client_state, server_state),
-            Self::SetCreativeModeSlot(packet) => packet.handle(client_state, server_state),
-            Self::SetCarriedItem(packet) => packet.handle(client_state, server_state),
             Self::CommandSuggestion(packet) => packet.handle(client_state, server_state),
             _ => Ok(Batch::new()),
         }
