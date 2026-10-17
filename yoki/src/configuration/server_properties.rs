@@ -1,130 +1,52 @@
-use minecraft_packet::packets::configuration::{
-    acknowledge_finish_configuration::AcknowledgeFinishConfigurationPacket,
-    client_information::ClientInformationPacket, finish_configuration::FinishConfigurationPacket,
-    known_packs::SelectKnownPacksPacket, plugin_message::PluginMessagePacket,
-    update_enabled_features::UpdateEnabledFeaturesPacket,
-};
-use minecraft_protocol::State;
-use yoki_identifier::Identifier;
-
-use std::sync::Arc;
-
-use crate::{
-    ServerState,
-    batch::Batch,
-    handlers::play::{queue_join_play_packets, queue_player_spawns, spawn_position},
-    registry::{client_accepted_known_pack, should_omit_known_pack_entry_data},
-    server::packet_registry::PacketRegistry,
-    server::players::{ConnectedPlayer, spawn_keep_alive_task},
-    server::{ClientState, PacketHandler, packet_handler::PacketHandlerError},
+use serde::{Deserialize, Serialize};
+use std::{
+    fs::{self},
+    path::Path,
 };
 
-impl PacketHandler for ClientInformationPacket {
-    fn handle(
-        &self,
-        _client_state: &mut ClientState,
-        _server_state: &ServerState,
-    ) -> Result<Batch, PacketHandlerError> {
-        let _ = self;
-        Ok(Batch::new())
+use crate::configuration::ConfigError;
+
+pub const PROPERTIES_FILE_NAME: &str = "server.properties";
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case", default)]
+pub struct ServerProperties {
+    pub server_ip: String,
+    pub server_port: u16,
+    pub max_players: usize,
+    pub motd: String,
+    pub online_mode: bool,
+}
+
+impl Default for ServerProperties {
+    fn default() -> Self {
+        Self {
+            server_ip: "0.0.0.0".to_string(),
+            server_port: 25565,
+            max_players: 20,
+            motd: "Welcome to Yoki server!".to_string(),
+            online_mode: true,
+        }
     }
 }
 
-impl PacketHandler for PluginMessagePacket {
-    fn handle(
-        &self,
-        _client_state: &mut ClientState,
-        _server_state: &ServerState,
-    ) -> Result<Batch, PacketHandlerError> {
-        let _ = self;
-        Ok(Batch::new())
+impl ServerProperties {
+    pub fn load_or_create(dir: &Path) -> Result<Self, ConfigError> {
+        let path = dir.join(PROPERTIES_FILE_NAME);
+
+        if !path.exists() {
+            let config = Self::default();
+            config.save(dir)?;
+            return Ok(config);
+        }
+
+        let raw = fs::read_to_string(path)?;
+        Ok(serde_java_properties::from_str(&raw)?)
     }
-}
 
-impl PacketHandler for SelectKnownPacksPacket {
-    fn handle(
-        &self,
-        client_state: &mut ClientState,
-        server_state: &ServerState,
-    ) -> Result<Batch, PacketHandlerError> {
-        let mut batch = Batch::new();
-        let protocol_version = client_state.protocol_version();
-        let accepted_known_pack = client_accepted_known_pack(&self.known_packs, protocol_version);
-        let omit_registry_data =
-            should_omit_known_pack_entry_data(protocol_version, accepted_known_pack);
-
-        let registry_packets: Vec<_> = server_state
-            .registry_store()
-            .registry_data_packets(protocol_version, omit_registry_data)
-            .map(PacketRegistry::RegistryData)
-            .collect();
-        batch.chain_iter(registry_packets);
-
-        batch.queue_packet(PacketRegistry::UpdateEnabledFeatures(
-            UpdateEnabledFeaturesPacket {
-                features: vec![Identifier::minecraft("vanilla").expect("valid identifier")],
-            },
-        ));
-        batch.queue_packet(PacketRegistry::UpdateTags(
-            server_state.registry_store().tags_packet(protocol_version),
-        ));
-        batch.queue_packet(PacketRegistry::FinishConfiguration(
-            FinishConfigurationPacket,
-        ));
-
-        Ok(batch)
-    }
-}
-
-impl PacketHandler for AcknowledgeFinishConfigurationPacket {
-    fn handle(
-        &self,
-        client_state: &mut ClientState,
-        server_state: &ServerState,
-    ) -> Result<Batch, PacketHandlerError> {
-        let mut batch = Batch::new();
-        let protocol_version = client_state.protocol_version();
-
-        let Some(profile) = client_state.game_profile() else {
-            return Err(PacketHandlerError::disconnect(
-                "missing game profile before entering play",
-            ));
-        };
-        let Some(sender) = client_state.sender() else {
-            return Err(PacketHandlerError::disconnect("missing connection writer"));
-        };
-
-        let entity_id = server_state.players().allocate_entity_id();
-        client_state.set_entity_id(entity_id);
-
-        batch.queue_both_state_change(State::Play);
-        queue_join_play_packets(&mut batch, protocol_version, server_state, entity_id);
-
-        spawn_keep_alive_task(sender.clone());
-
-        let player = Arc::new(ConnectedPlayer::new(
-            entity_id,
-            profile,
-            protocol_version,
-            spawn_position(),
-            sender,
-        ));
-        let others = server_state.players().register(Arc::clone(&player));
-        queue_player_spawns(&mut batch, server_state, &player, &others);
-
-        tracing::info!(
-            "{} joined the game (entity {}, {}, {} online)",
-            player.profile().username(),
-            entity_id,
-            protocol_version.humanize(),
-            others.len() + 1
-        );
-
-        server_state.broadcast(format!(
-            "§e{} joined the game!",
-            client_state.get_username()
-        ));
-
-        Ok(batch)
+    pub fn save(&self, path: &Path) -> Result<(), ConfigError> {
+        let content = serde_java_properties::to_string(&self)?.replace("\\", "");
+        fs::write(path.join(PROPERTIES_FILE_NAME), content)?;
+        Ok(())
     }
 }

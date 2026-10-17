@@ -1,7 +1,10 @@
-use crate::ConfigError;
+use protocol_version::protocol_version::ProtocolVersion;
+
 use crate::commands::{CommandRegistry, impls::register_all};
-use crate::configuration::PROPERTIES_FILE_NAME;
-use crate::configuration::ServerProperties;
+use crate::configuration::ConfigError;
+use crate::configuration::server_properties::{ServerProperties};
+use crate::configuration::toml_config::TomlConfig;
+use crate::configuration::yoki_config::YokiConfig;
 use crate::registry::RegistryStore;
 use crate::server::players::PlayerRegistry;
 use std::path::Path;
@@ -9,6 +12,7 @@ use std::path::Path;
 #[derive(Debug)]
 pub struct ServerState {
     pub server_properties: ServerProperties,
+    pub yoki_configuration: YokiConfig,
     registry_store: RegistryStore,
     players: PlayerRegistry,
     commands: CommandRegistry,
@@ -19,18 +23,28 @@ pub struct ServerState {
 
 impl ServerState {
     pub fn load(path: impl AsRef<Path>) -> Result<Self, ConfigError> {
-        let config = ServerProperties::load_or_create(path.as_ref().join(PROPERTIES_FILE_NAME))?;
+        let server_properties = ServerProperties::load_or_create(path.as_ref())?;
+        let yoki_configuration = YokiConfig::load_or_create(path.as_ref())?;
         let registry_store =
             RegistryStore::load().map_err(|err| ConfigError::Registry(err.to_string()))?;
-        Ok(Self::new(config, registry_store))
+        Ok(Self::new(
+            server_properties,
+            yoki_configuration,
+            registry_store,
+        ))
     }
 
-    pub fn new(server_properties: ServerProperties, registry_store: RegistryStore) -> Self {
+    pub fn new(
+        server_properties: ServerProperties,
+        yoki_configuration: YokiConfig,
+        registry_store: RegistryStore,
+    ) -> Self {
         Self {
             allow_unsupported_versions: false,
             reply_to_status: true,
             accept_transfers: false,
             server_properties,
+            yoki_configuration,
             registry_store,
             players: PlayerRegistry::default(),
             commands: register_all(),
@@ -53,6 +67,10 @@ impl ServerState {
         &self.server_properties
     }
 
+    pub fn yoki_configuration(&self) -> &YokiConfig {
+        &self.yoki_configuration
+    }
+
     pub fn bind(&self) -> String {
         format!(
             "{}:{}",
@@ -66,6 +84,10 @@ impl ServerState {
 
     pub fn motd(&self) -> &str {
         &self.server_properties.motd
+    }
+
+    pub fn is_version_allowed(&self, version: ProtocolVersion) -> bool {
+        self.yoki_configuration.is_version_allowed(version)
     }
 
     pub const fn allow_unsupported_versions(&self) -> bool {
@@ -92,6 +114,7 @@ impl Default for ServerState {
     fn default() -> Self {
         Self::new(
             ServerProperties::default(),
+            YokiConfig::default(),
             RegistryStore::load().expect("failed to load registry data"),
         )
     }
