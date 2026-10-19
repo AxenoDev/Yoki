@@ -1,12 +1,8 @@
 use thiserror::Error;
 
 pub mod server_properties;
-pub mod yoki_config;
-pub mod version_spec;
 pub mod toml_config;
-
-pub const PROPERTIES_FILE_NAME: &str = "server.properties";
-pub const YOKI_CONFIG_FILE_NAME: &str = "yoki.toml";
+pub mod yoki_config;
 
 #[derive(Error, Debug)]
 pub enum ConfigError {
@@ -20,6 +16,8 @@ pub enum ConfigError {
     TomlParse(#[from] toml::de::Error),
     #[error("Failed to serialize yoki.toml: {0}")]
     TomlSerialize(#[from] toml::ser::Error),
+    #[error("versioning.allowed in yoki.toml is empty: no client version could join")]
+    NoAllowedVersion,
     #[error("Failed to load registry data: {0}")]
     Registry(String),
 }

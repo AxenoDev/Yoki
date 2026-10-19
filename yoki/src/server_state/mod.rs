@@ -2,7 +2,7 @@ use protocol_version::protocol_version::ProtocolVersion;
 
 use crate::commands::{CommandRegistry, impls::register_all};
 use crate::configuration::ConfigError;
-use crate::configuration::server_properties::{ServerProperties};
+use crate::configuration::server_properties::ServerProperties;
 use crate::configuration::toml_config::TomlConfig;
 use crate::configuration::yoki_config::YokiConfig;
 use crate::registry::RegistryStore;
@@ -16,9 +16,6 @@ pub struct ServerState {
     registry_store: RegistryStore,
     players: PlayerRegistry,
     commands: CommandRegistry,
-    allow_unsupported_versions: bool,
-    reply_to_status: bool,
-    accept_transfers: bool,
 }
 
 impl ServerState {
@@ -27,6 +24,7 @@ impl ServerState {
         let yoki_configuration = YokiConfig::load_or_create(path.as_ref())?;
         let registry_store =
             RegistryStore::load().map_err(|err| ConfigError::Registry(err.to_string()))?;
+
         Ok(Self::new(
             server_properties,
             yoki_configuration,
@@ -40,9 +38,6 @@ impl ServerState {
         registry_store: RegistryStore,
     ) -> Self {
         Self {
-            allow_unsupported_versions: false,
-            reply_to_status: true,
-            accept_transfers: false,
             server_properties,
             yoki_configuration,
             registry_store,
@@ -87,19 +82,29 @@ impl ServerState {
     }
 
     pub fn is_version_allowed(&self, version: ProtocolVersion) -> bool {
-        self.yoki_configuration.is_version_allowed(version)
+        self.yoki_configuration
+            .versioning
+            .is_version_allowed(version)
+    }
+
+    pub fn version_kick_message(&self, client_version: &str) -> String {
+        self.yoki_configuration
+            .versioning
+            .kick_message_for(client_version)
     }
 
     pub const fn allow_unsupported_versions(&self) -> bool {
-        self.allow_unsupported_versions
+        self.yoki_configuration
+            .versioning
+            .allow_unsupported_versions
     }
 
     pub const fn reply_to_status(&self) -> bool {
-        self.reply_to_status
+        self.yoki_configuration.network.reply_to_status
     }
 
     pub const fn accept_transfers(&self) -> bool {
-        self.accept_transfers
+        self.yoki_configuration.network.accept_transfers
     }
 
     pub fn broadcast(&self, message: impl Into<String>) {

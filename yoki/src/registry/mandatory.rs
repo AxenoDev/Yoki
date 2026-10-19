@@ -33,6 +33,6 @@ pub fn should_omit_known_pack_entry_data(
     client_accepted_known_pack
         && matches!(
             version.data(),
-            ProtocolVersion::V26_1 | ProtocolVersion::V26_2
+            ProtocolVersion::V26_1 | ProtocolVersion::V26_2 | ProtocolVersion::V26_3
         )
 }

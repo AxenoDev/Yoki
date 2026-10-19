@@ -8,6 +8,7 @@ use tracing::{Event, Level, Subscriber};
 use tracing_subscriber::fmt::format::Writer;
 use tracing_subscriber::fmt::{FmtContext, FormatEvent, FormatFields};
 use tracing_subscriber::registry::LookupSpan;
+use tracing_subscriber::reload;
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 use yoki::{
     Cli, ServerState,
@@ -48,8 +49,11 @@ async fn main() {
         fs::File::create(server_dir.join("logs/latest.log")).expect("Failed to create log file");
     let (file_writer, _guard) = tracing_appender::non_blocking(file);
 
+    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::from("info"));
+    let (env_filter, filter_handle) = reload::Layer::new(env_filter);
+
     tracing_subscriber::registry()
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::from("info")))
+        .with(env_filter)
         .with(
             tracing_subscriber::fmt::layer()
                 .event_format(YokiFormat)
@@ -64,6 +68,13 @@ async fn main() {
         .init();
 
     let server_state = Arc::new(ServerState::load(server_dir).expect("failed to load config"));
+    if server_state.yoki_configuration().development.debug && std::env::var_os("RUST_LOG").is_none()
+    {
+        if let Err(err) = filter_handle.reload(EnvFilter::from("info,yoki=debug")) {
+            tracing::error!("failed to set log level: {err}");
+        }
+        tracing::debug!("debug logging enabled due to development.debug=true");
+    }
     let addr = server_state.bind();
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
@@ -116,7 +127,7 @@ async fn run_read_loop(
     loop {
         let raw = reader.receive().await?;
         let packet = match PacketRegistry::decode_serverbound(
-            client_state.protocol_version(),
+            client_state.protocol_version().packets(),
             client_state.serverbound_state(),
             &raw,
         ) {

@@ -4,7 +4,7 @@ use yoki_macros::Pvn;
 #[repr(i32)]
 pub enum ProtocolVersion {
     #[default]
-    #[pvn(known_packs = ["26.2"])]
+    #[pvn(known_packs = ["26.3"])]
     V26_3 = 777,
     #[pvn(known_packs = ["26.2"])]
     V26_2 = 776,

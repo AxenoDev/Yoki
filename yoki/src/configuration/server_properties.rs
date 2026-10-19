@@ -6,8 +6,6 @@ use std::{
 
 use crate::configuration::ConfigError;
 
-pub const PROPERTIES_FILE_NAME: &str = "server.properties";
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case", default)]
 pub struct ServerProperties {
@@ -32,7 +30,7 @@ impl Default for ServerProperties {
 
 impl ServerProperties {
     pub fn load_or_create(dir: &Path) -> Result<Self, ConfigError> {
-        let path = dir.join(PROPERTIES_FILE_NAME);
+        let path = dir.join("server.properties");
 
         if !path.exists() {
             let config = Self::default();
@@ -46,7 +44,7 @@ impl ServerProperties {
 
     pub fn save(&self, path: &Path) -> Result<(), ConfigError> {
         let content = serde_java_properties::to_string(&self)?.replace("\\", "");
-        fs::write(path.join(PROPERTIES_FILE_NAME), content)?;
+        fs::write(path.join("server.properties"), content)?;
         Ok(())
     }
 }

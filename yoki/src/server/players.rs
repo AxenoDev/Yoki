@@ -6,9 +6,9 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crate::server::game_profile::GameProfile;
 use crate::server::gamemode::GameMode;
 use crate::server::packet_registry::PacketRegistry;
+use minecraft_packet::ConnectionWriter;
 use minecraft_packet::packets::play::keep_alive::ClientboundKeepAlivePacket;
 use minecraft_packet::packets::play::system_chat::SystemChatMessagePacket;
-use minecraft_packet::ConnectionWriter;
 use protocol_version::protocol_version::ProtocolVersion;
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 
@@ -29,14 +29,18 @@ pub fn spawn_writer_task(mut writer: ConnectionWriter, mut receiver: UnboundedRe
             match outgoing {
                 Outgoing::SetVersion(version) => protocol_version = version,
                 Outgoing::Packet(packet) => {
-                    let raw = match packet.encode_clientbound(protocol_version) {
+                    let raw = match packet.encode_clientbound(protocol_version.packets()) {
                         Ok(raw) => raw,
                         Err(err) => {
                             tracing::error!("failed to encode outgoing packet: {err}");
                             break;
                         }
                     };
-                    if writer.send_raw(&raw).await.is_err() {
+                    if let Err(err) = writer.send_raw(&raw).await {
+                        tracing::error!(
+                            "failed to send outgoing packet for {}: {err}",
+                            protocol_version.humanize()
+                        );
                         break;
                     }
                 }

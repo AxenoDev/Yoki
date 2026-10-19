@@ -58,6 +58,13 @@ impl PacketHandler for SelectKnownPacksPacket {
             .registry_data_packets(protocol_version, omit_registry_data)
             .map(PacketRegistry::RegistryData)
             .collect();
+        tracing::debug!(
+            "sending {} registry packets to client (omit_registry_data={omit_registry_data})",
+            registry_packets.len()
+        );
+        for p in &registry_packets {
+            tracing::debug!("registry packet: {:?}", p);
+        }
         batch.chain_iter(registry_packets);
 
         batch.queue_packet(PacketRegistry::UpdateEnabledFeatures(
