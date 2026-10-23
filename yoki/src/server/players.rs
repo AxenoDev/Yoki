@@ -30,7 +30,12 @@ pub fn spawn_writer_task(mut writer: ConnectionWriter, mut receiver: UnboundedRe
                 Outgoing::SetVersion(version) => protocol_version = version,
                 Outgoing::Packet(packet) => {
                     let raw = match packet.encode_clientbound(protocol_version.packets()) {
-                        Ok(raw) => raw,
+                        Ok(raw) => {
+                            tracing::debug!(
+                                "Sending packet: {}", raw.id
+                            );
+                            raw
+                        },
                         Err(err) => {
                             tracing::error!("failed to encode outgoing packet: {err}");
                             break;

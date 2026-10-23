@@ -20,4 +20,6 @@ pub enum ConfigError {
     NoAllowedVersion,
     #[error("Failed to load registry data: {0}")]
     Registry(String),
+    #[error("Taille d'image invalide : {0}x{1} (attendu : 64x64)")]
+    BadSize(u32, u32),
 }

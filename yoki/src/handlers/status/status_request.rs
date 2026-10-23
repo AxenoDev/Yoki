@@ -16,11 +16,12 @@ impl PacketHandler for StatusRequestPacket {
         server_state: &ServerState,
     ) -> Result<Batch, PacketHandlerError> {
         let mut batch = Batch::new();
+        let max_players: usize = server_state.server_properties().max_players;
 
         tracing::debug!(
             "status request ({}/{} online)",
             server_state.players().get_size(),
-            server_state.max_players()
+            max_players
         );
 
         let sample: Vec<PlayerSample> = server_state
@@ -33,10 +34,11 @@ impl PacketHandler for StatusRequestPacket {
         let status = ServerStatus::yoki_default()
             .with_players(
                 server_state.players().get_size() as u32,
-                server_state.max_players() as u32,
+                max_players as u32,
                 Some(sample),
             )
-            .with_description(server_state.motd());
+            .with_description(server_state.server_properties().motd.to_string())
+            .with_favicon(server_state.favicon().unwrap_or_default().to_string());
         let response = StatusResponsePacket::from_status(&status);
         batch.queue_packet(PacketRegistry::StatusResponse(response));
         Ok(batch)
