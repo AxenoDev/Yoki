@@ -1,0 +1,13 @@
+[package]
+name = "yoki_registries"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+protocol_version = { path = "../protocol_version" }
+yoki_binutils = { path = "../yoki_binutils" }
+yoki_identifier = { path = "../yoki_identifier" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }

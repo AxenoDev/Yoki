@@ -1,4 +1,5 @@
 use crate::packet::{OutgoingPacket, PacketDirection, PacketMeta};
+use protocol_version::protocol_version::ProtocolVersion;
 use yoki_binutils::{BinaryError, BinaryWriter, ProtocolError, WriteBytes, data_types::VarInt};
 
 pub const WORLD_SECTION_COUNT: usize = 24;
@@ -35,14 +36,50 @@ impl WriteBytes for Heightmap {
 #[derive(Debug, Clone, Default)]
 pub struct BitSet(pub Vec<i64>);
 
+impl BitSet {
+    fn write_for(
+        &self,
+        writer: &mut BinaryWriter,
+        version: ProtocolVersion,
+    ) -> Result<(), BinaryError> {
+        if version >= ProtocolVersion::V26_3 {
+            let mut bytes: Vec<u8> = self.0.iter().flat_map(|long| long.to_le_bytes()).collect();
+            while bytes.last() == Some(&0) {
+                bytes.pop();
+            }
+            VarInt::new(bytes.len() as i32).write(writer)?;
+            writer.write_all(&bytes);
+        } else {
+            self.0.write(writer)?;
+        }
+        Ok(())
+    }
+}
+
 impl WriteBytes for BitSet {
     fn write(&self, writer: &mut BinaryWriter) -> Result<(), BinaryError> {
         self.0.write(writer)
     }
 }
+impl WriteBytes for LevelChunkWithLightPacket {
+    fn write(&self, writer: &mut BinaryWriter) -> Result<(), BinaryError> {
+        self.chunk_x.write(writer)?;
+        self.chunk_z.write(writer)?;
+        self.heightmaps.write(writer)?;
+        writer.write_byte_array(&self.chunk_data)?;
+        VarInt::new(0).write(writer)?;
+        self.sky_light_mask.write_for(writer, self.version)?;
+        self.block_light_mask.write_for(writer, self.version)?;
+        self.empty_sky_light_mask.write_for(writer, self.version)?;
+        self.empty_block_light_mask
+            .write_for(writer, self.version)?;
+        Ok(())
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct LevelChunkWithLightPacket {
+    version: ProtocolVersion,
     chunk_x: i32,
     chunk_z: i32,
     heightmaps: Vec<Heightmap>,
@@ -58,6 +95,7 @@ pub struct LevelChunkWithLightPacket {
 impl LevelChunkWithLightPacket {
     pub fn empty(chunk_x: i32, chunk_z: i32) -> Self {
         Self {
+            version: ProtocolVersion::V26_3,
             chunk_x,
             chunk_z,
             heightmaps: vec![Heightmap::motion_blocking(0)],
@@ -72,7 +110,22 @@ impl LevelChunkWithLightPacket {
     }
 
     pub fn flat(chunk_x: i32, chunk_z: i32, solid_block_state_id: i32) -> Self {
+        Self::flat_for_version(
+            ProtocolVersion::V26_3,
+            chunk_x,
+            chunk_z,
+            solid_block_state_id,
+        )
+    }
+
+    pub fn flat_for_version(
+        version: ProtocolVersion,
+        chunk_x: i32,
+        chunk_z: i32,
+        solid_block_state_id: i32,
+    ) -> Self {
         Self {
+            version,
             chunk_x,
             chunk_z,
             heightmaps: vec![Heightmap::motion_blocking(
@@ -113,10 +166,11 @@ impl OutgoingPacket for LevelChunkWithLightPacket {
         self.heightmaps.write(writer)?;
         writer.write_byte_array(&self.chunk_data)?;
         VarInt::new(0).write(writer)?;
-        self.sky_light_mask.write(writer)?;
-        self.block_light_mask.write(writer)?;
-        self.empty_sky_light_mask.write(writer)?;
-        self.empty_block_light_mask.write(writer)?;
+        self.sky_light_mask.write_for(writer, self.version)?;
+        self.block_light_mask.write_for(writer, self.version)?;
+        self.empty_sky_light_mask.write_for(writer, self.version)?;
+        self.empty_block_light_mask
+            .write_for(writer, self.version)?;
         VarInt::new(self.sky_light_arrays.len() as i32).write(writer)?;
         for arr in &self.sky_light_arrays {
             writer.write_byte_array(arr)?;
@@ -141,20 +195,15 @@ fn pack_heightmap_uniform(value: u16, bits_per_entry: u8) -> Vec<i64> {
 }
 
 fn pack_heightmap(values: &[u16], bits_per_entry: u8) -> Vec<i64> {
-    let bits = bits_per_entry as usize;
-    let long_count = (values.len() * bits).div_ceil(64);
+    let bits = usize::from(bits_per_entry);
+    let values_per_long = 64 / bits;
+    let long_count = values.len().div_ceil(values_per_long);
     let mut data = vec![0u64; long_count];
 
     for (index, value) in values.iter().enumerate() {
-        let value = *value as u64;
-        let bit_index = index * bits;
-        let long_index = bit_index / 64;
-        let bit_offset = bit_index % 64;
-        data[long_index] |= value << bit_offset;
-        if bit_offset + bits > 64 {
-            let overflow = bit_offset + bits - 64;
-            data[long_index + 1] |= value >> (bits - overflow);
-        }
+        let long_index = index / values_per_long;
+        let shift = (index % values_per_long) * bits;
+        data[long_index] |= u64::from(*value) << shift;
     }
 
     data.into_iter().map(|value| value as i64).collect()
@@ -193,4 +242,20 @@ fn flat_world_chunk_data(solid_block_state_id: Option<i32>) -> Vec<u8> {
         data.extend_from_slice(&section);
     }
     data
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn dump_flat_chunk() {
+        let mut w = BinaryWriter::new();
+        LevelChunkWithLightPacket::flat(0, 0, 1)
+            .encode_payload(&mut w)
+            .unwrap();
+        let bytes = w.into_inner();
+        println!("len = {}", bytes.len());
+        println!("{:02x?}", &bytes[..540.min(bytes.len())]);
+    }
 }

@@ -6,6 +6,7 @@ use yoki_identifier::Identifier;
 
 #[derive(Debug, Clone)]
 pub struct LoginPacket {
+    version: ProtocolVersion,
     entity_id: i32,
     is_hardcore: bool,
     dimension_names: Vec<Identifier>,
@@ -19,27 +20,26 @@ pub struct LoginPacket {
     dimension_name: Identifier,
     hashed_seed: i64,
     game_mode: u8,
-    previous_game_mode: i8,
+    previous_game_mode: Option<u8>,
     is_debug: bool,
     is_flat: bool,
     death_location: Option<DeathLocation>,
     portal_cooldown: VarInt,
     sea_level: VarInt,
-    online_mode: Option<bool>,
+    online_mode: bool,
     enforces_secure_chat: bool,
 }
 
 impl Default for LoginPacket {
     fn default() -> Self {
-        Self::for_protocol_version(ProtocolVersion::V26_2, 1, 0)
+        Self::for_protocol_version(ProtocolVersion::V26_3, 1, 0)
     }
 }
 
 impl LoginPacket {
     pub fn for_protocol_version(version: ProtocolVersion, entity_id: i32, game_mode: u8) -> Self {
-        let online_mode = matches!(version.data(), ProtocolVersion::V26_2).then_some(false);
-
         Self {
+            version,
             entity_id,
             is_hardcore: false,
             dimension_names: vec![
@@ -57,15 +57,27 @@ impl LoginPacket {
             dimension_name: Identifier::minecraft("overworld").expect("valid identifier"),
             hashed_seed: 0,
             game_mode,
-            previous_game_mode: -1,
+            previous_game_mode: None,
             is_debug: false,
             is_flat: false,
             death_location: None,
             portal_cooldown: VarInt::new(0),
             sea_level: VarInt::new(63),
-            online_mode,
+            online_mode: false,
             enforces_secure_chat: false,
         }
+    }
+
+    #[must_use]
+    pub const fn with_online_mode(mut self, online_mode: bool) -> Self {
+        self.online_mode = online_mode;
+        self
+    }
+
+    #[must_use]
+    pub const fn with_previous_game_mode(mut self, previous_game_mode: Option<u8>) -> Self {
+        self.previous_game_mode = previous_game_mode;
+        self
     }
 }
 
@@ -87,15 +99,24 @@ impl OutgoingPacket for LoginPacket {
         self.dimension_type.write(writer)?;
         self.dimension_name.write(writer)?;
         self.hashed_seed.write(writer)?;
-        self.game_mode.write(writer)?;
-        self.previous_game_mode.write(writer)?;
+
+        if self.version >= ProtocolVersion::V26_3 {
+            VarInt::new(i32::from(self.game_mode)).write(writer)?;
+            VarInt::new(self.previous_game_mode.map_or(0, |m| i32::from(m) + 1)).write(writer)?;
+        } else {
+            self.game_mode.write(writer)?;
+            self.previous_game_mode
+                .map_or(-1i8, |m| i8::try_from(m).unwrap_or(-1))
+                .write(writer)?;
+        }
+
         self.is_debug.write(writer)?;
         self.is_flat.write(writer)?;
         self.death_location.write(writer)?;
         self.portal_cooldown.write(writer)?;
         self.sea_level.write(writer)?;
-        if let Some(online_mode) = self.online_mode {
-            online_mode.write(writer)?;
+        if self.version >= ProtocolVersion::V26_2 {
+            self.online_mode.write(writer)?;
         }
         self.enforces_secure_chat.write(writer)?;
         Ok(())

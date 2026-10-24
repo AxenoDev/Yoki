@@ -55,6 +55,11 @@ impl PacketHandler for HandshakePacket {
             client_state.kick(server_state.version_kick_message(&label));
         }
 
+        tracing::debug!(
+            "handshake: client protocol {} -> {protocol_version:?}",
+            self.protocol_version.inner()
+        );
+
         client_state.set_protocol_version(protocol_version);
         batch.queue_both_state_change(next_state);
 

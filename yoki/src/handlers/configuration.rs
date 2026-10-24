@@ -13,7 +13,9 @@ use crate::{
     ServerState,
     batch::Batch,
     handlers::play::{queue_join_play_packets, queue_player_spawns, spawn_position},
-    registry::{client_accepted_known_pack, should_omit_known_pack_entry_data},
+    registry::{
+        RegistryStorePackets, client_accepted_known_pack, should_omit_known_pack_entry_data,
+    },
     server::packet_registry::PacketRegistry,
     server::players::{ConnectedPlayer, spawn_keep_alive_task},
     server::{ClientState, PacketHandler, packet_handler::PacketHandlerError},
@@ -56,6 +58,7 @@ impl PacketHandler for SelectKnownPacksPacket {
         let registry_packets: Vec<_> = server_state
             .registry_store()
             .registry_data_packets(protocol_version, omit_registry_data)
+            .into_iter()
             .map(PacketRegistry::RegistryData)
             .collect();
         tracing::debug!(

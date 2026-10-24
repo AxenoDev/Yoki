@@ -7,6 +7,7 @@ members = [
     "crates/yoki_binutils",
     "crates/yoki_identifier",
     "crates/protocol_version",
+    "crates/yoki_registries"
 ]
 resolver = "2"
 

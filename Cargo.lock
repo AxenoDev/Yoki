@@ -1355,6 +1355,7 @@ dependencies = [
  "yoki_binutils",
  "yoki_identifier",
  "yoki_macros",
+ "yoki_registries",
 ]
 
 [[package]]
@@ -1386,6 +1387,19 @@ dependencies = [
  "serde_json",
  "syn",
  "thiserror",
+]
+
+[[package]]
+name = "yoki_registries"
+version = "0.1.0"
+dependencies = [
+ "protocol_version",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tracing",
+ "yoki_binutils",
+ "yoki_identifier",
 ]
 
 [[package]]

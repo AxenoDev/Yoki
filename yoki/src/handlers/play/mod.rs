@@ -85,7 +85,12 @@ pub fn queue_join_play_packets(
     for chunk_x in -CHUNK_RADIUS..=CHUNK_RADIUS {
         for chunk_z in -CHUNK_RADIUS..=CHUNK_RADIUS {
             batch.queue_packet(PacketRegistry::LevelChunkWithLight(
-                LevelChunkWithLightPacket::flat(chunk_x, chunk_z, stone_id),
+                LevelChunkWithLightPacket::flat_for_version(
+                    protocol_version,
+                    chunk_x,
+                    chunk_z,
+                    stone_id,
+                ),
             ));
         }
     }

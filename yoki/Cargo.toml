@@ -17,6 +17,7 @@ minecraft_protocol = { path = "../crates/minecraft_protocol" }
 yoki_macros = { path = "../crates/yoki_macros" }
 yoki_binutils = { path = "../crates/yoki_binutils" }
 yoki_identifier = { path = "../crates/yoki_identifier" }
+yoki_registries = { path = "../crates/yoki_registries" }
 protocol_version = { path = "../crates/protocol_version" }
 futures = { workspace = true }
 tokio = { workspace = true }
